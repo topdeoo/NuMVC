@@ -1,0 +1,36 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/root/PDSP/basic.h
+unordered_map
+-
+unordered_set
+-
+chrono
+-
+vector
+-
+set
+-
+stack
+-
+cmath
+-
+fstream
+-
+iostream
+-
+
+/root/PDSP/main.cpp
+pdsp.h
+/root/PDSP/pdsp.h
+
+/root/PDSP/pdsp.h
+basic.h
+/root/PDSP/basic.h
+

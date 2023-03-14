@@ -13,6 +13,12 @@
 #include <chrono>
 #include <vector>
 #include <set>
+#include <stack>
+#include <cmath>
+#include <fstream>
+#include <iostream>
+
+int n, m; //! n: number of nodes, m: number of edges
 
 //! safe and fast hash function
 //! reference: https://codeforces.com/blog/entry/62393
@@ -36,6 +42,8 @@ struct custom_hash {
 struct bitmap {
     std::vector<size_t> _bit;
 
+    bitmap () = default;
+
     explicit bitmap (size_t size) : _bit(size / 32 + 1) {}
 
     void set (const size_t &pos) {
@@ -56,13 +64,21 @@ struct bitmap {
         _bit[index] &= ~(1 << offset);
     }
 
+    //! judge the vertex u whether is only domain by vertex v
+    bool is_only () {
+        int cnt = 0;
+        for (auto &i: _bit) {
+            if (i != 0)
+                cnt++;
+        }
+        return cnt == 1;
+    }
+
 };
 
 std::unordered_set<int, custom_hash> C; //! candidate set
 std::unordered_set<int, custom_hash> P; //! observed set
 std::unordered_map<int, bitmap, custom_hash> S; //! support set
-
-int n, m; //! n: number of nodes, m: number of edges
 
 //! edges
 std::unordered_map<int, std::vector<int>, custom_hash> edges;
@@ -78,7 +94,9 @@ struct vertex {
     int v, score, age;
 
     bool operator< (const vertex &rhs) const {
-        if(score == rhs.score)
+        if (score == rhs.score && age == rhs.age)
+            return v < rhs.v;
+        else if (score == rhs.score)
             return age < rhs.age;
         else
             return score < rhs.score;
@@ -96,6 +114,10 @@ std::vector<int> weight;
 
 //! weight mean
 double mean;
+
+//! update weight
+double gama = 0.5;
+double roi = 0.3;
 
 //! CC strategy
 std::vector<int> cc;
