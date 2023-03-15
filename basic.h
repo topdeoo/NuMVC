@@ -17,6 +17,7 @@
 #include <cmath>
 #include <fstream>
 #include <iostream>
+#include <random>
 
 int n, m; //! n: number of nodes, m: number of edges
 
@@ -94,7 +95,9 @@ struct vertex {
     int v, score, age;
 
     bool operator< (const vertex &rhs) const {
-        if (score == rhs.score && age == rhs.age)
+        if(v == rhs.v)
+            return true;
+        else if (score == rhs.score && age == rhs.age)
             return v < rhs.v;
         else if (score == rhs.score)
             return age < rhs.age;
@@ -125,5 +128,12 @@ int tabu;
 
 //! best solution
 std::unordered_set<int, custom_hash> C_star;
+
+//! random seed
+std::random_device rd;
+std::knuth_b gen(rd());
+
+//! standard answer
+int standard_answer;
 
 #endif //PDSP_BASIC_H
