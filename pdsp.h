@@ -9,50 +9,48 @@
 
 #include "basic.h"
 
-bool can_observed (int vertex) {
-    if (neighbor.find(vertex) == neighbor.end())
-        return false;
-    if (neighbor[vertex].size() == 1 && P.find(neighbor[vertex][0]) != P.end())
+bool can_observed (int father) {
+    if (C.find(father) != C.end())
         return true;
-    else {
+    if (neighbor[father].size() <= 1) {
+        return true;
+    } else {
         int cnt = 0;
-        for (auto &v: neighbor[vertex]) {
+        for (auto &v: neighbor[father]) {
             if (P.find(v) != P.end())
                 cnt++;
         }
-        return cnt >= neighbor[vertex].size() - 1;
+        return cnt >= neighbor[father].size() - 1;
     }
 }
 
-
 //! PROP property
+//! remove函数用prop算法反向维护
 void check_prop (int vertex) {
     bitmap is_in_stack(n);
-    std::stack<int> check_stack;
+    std::stack<std::pair<int, int>> _stack;
     for (auto &v: neighbor[vertex]) {
         for (auto &u: neighbor[v]) {
             if (is_in_stack.find(u) || P.find(u) != P.end())
                 continue;
             else {
-                check_stack.push(u);
+                _stack.emplace(u, v);
                 is_in_stack.set(u);
             }
         }
     }
-    while (!check_stack.empty()) {
-        int u = check_stack.top();
-        check_stack.pop();
-        is_in_stack.reset(u);
-        if (can_observed(u)) {
-            //! if u can be observed, then u is in P
-            //! update S[u] by N(u) if N(u) is in
-            P.insert(u);
-            for (auto &v: neighbor[u]) {
+
+    while (!_stack.empty()) {
+        std::pair<int, int> u = _stack.top();
+        _stack.pop();
+        is_in_stack.reset(u.first);
+        if (can_observed(u.second)) {
+            S[u.second].insert(u.first);
+            P.insert(u.first);
+            for (auto &v: neighbor[u.first]) {
                 bool flag = P.find(v) != P.end();
-                if (flag)
-                    S[u].set(v);
                 if (!is_in_stack.find(v) && !flag) {
-                    check_stack.push(v);
+                    _stack.emplace(v, u.first);
                     is_in_stack.set(v);
                 }
             }
@@ -60,32 +58,29 @@ void check_prop (int vertex) {
     }
 }
 
-
 //! forget weight and recalculate score
 void forget_weight () {
     for (auto &w: weight) {
         w = ceil(w * roi);
     }
+    for (auto v = 0; v < n; v++) {
 
-    //! can optimize
-    for (auto &v: add_score) {
+        /*for (auto v = 1; v <= n; v++) {*/
         int temp = 0;
-        for (auto &u: neighbor[v.v]) {
-            if (P.find(u) != P.end())
+        if (C.find(v) == C.end()) {
+            for (auto &u: neighbor[v]) {
+                if (P.find(u) == P.end())
+                    temp += weight[u];
+            }
+            add_score[v].score = temp;
+        } else {
+            temp = 0;
+            for (auto &u: S[v]) {
                 temp += weight[u];
+            }
+            remove_score[v].score = temp;
         }
-        const_cast <vertex &> (v).score = ceil(v.score * roi);
     }
-
-    for (auto &v: remove_score) {
-        int temp = 0;
-        for (auto &u: neighbor[v.v]) {
-            if (S[v.v].find(u))
-                temp += weight[u];
-        }
-        const_cast <vertex &> (v).score = ceil(v.score * roi);
-    }
-
 }
 
 //! update weight
@@ -100,139 +95,146 @@ void update_weight () {
         forget_weight();
 }
 
-
-//! build the initial graph
-void init () {
-    std::cin >> standard_answer;
-    std::cin >> n >> m;
-    weight.resize(n + 1);
-    std::fill(weight.begin(), weight.end(), 1);
-    for (int i = 0; i < m; i++) {
-        int from, to;
-        std::cin >> from >> to;
-        edges[from].emplace_back(to);
-        edges[to].emplace_back(from);
-        neighbor[from].emplace_back(to);
-        neighbor[to].emplace_back(from);
+int random_select () {
+    std::uniform_int_distribution<> dis(0, int(C.size()));
+    int offset = dis(gen), count = 0;
+    auto v = C.begin();
+    while (count < offset) {
+        v++;
+        count++;
     }
-    for (int v = 1; v <= n; v++) {
-        S.insert(std::make_pair(v, bitmap(neighbor[v].size())));
-        int score = 0;
-        for (auto &u: neighbor[v]) {
-            S[v].set(u);
-            score += weight[u];
-        }
-        add_score.insert(vertex{ v, score, 0 });
-        cc.emplace_back(0);
+    if (tabu == *v)
+        return *C.begin();
+    else {
+        tabu = *v;
+        return *v;
     }
-    mean = 1;
 }
 
+void check_prop_remove (int vertex) {
+    auto &_prop = S[vertex];
+    std::vector<int> remove_list;
+    for (auto &v: _prop) {
+        for (auto &u: neighbor[v]) {
+            if (can_observed(u)) {
+                P.insert(v);
+                S[u].insert(v);
+                cc[v] = false;
+                remove_list.emplace_back(v);
+            }
+        }
+    }
+    for (auto &v: remove_list) {
+        _prop.erase(v);
+    }
+    for (auto &u: neighbor[vertex]) {
+        if (can_observed(u)) {
+            P.insert(vertex);
+            S[u].insert(vertex);
+        }
+    }
+}
+
+void remove (const int &v) {
+    C.erase(v);
+    P.erase(v);
+    cc[v] = false;
+    for (auto &u: S[v]) {
+        P.erase(u);
+        cc[u] = true;
+    }
+    check_prop_remove(v);
+    int age = remove_score[v].age;
+    remove_score.erase(v);
+    int score = 0;
+    for (auto &u: neighbor[v]) {
+        if (P.find(u) == P.end())
+            score += weight[u];
+    }
+    add_score[v].score = score;
+    add_score[v].age = age;
+}
+
+void add (const int &v) {
+    C.insert(v);
+    P.insert(v);
+    for (auto &u: neighbor[v]) {
+        P.insert(u);
+        S[v].insert(u);
+        auto &t = add_score[u];
+        t.score -= weight[v];
+    }
+    check_prop(v);
+
+    int age = add_score[v].age + 1;
+    add_score.erase(v);
+    //! insert v to remove_score
+    int score = 0;
+    for (auto &u: S[v]) {
+        score += weight[u];
+    }
+    auto &r = remove_score[v];
+    r.score = score;
+    r.age = age;
+}
+
+int select_remove_vertex () {
+    std::vector<std::pair<int, vertex>> temp(remove_score.begin(), remove_score.end());
+    std::sort(temp.begin(), temp.end(), [] (std::pair<int, vertex> &lhs, std::pair<int, vertex> &rhs) {
+        if (lhs.second.score == rhs.second.score)
+            return lhs.second.age > rhs.second.age;
+        return lhs.second.score < rhs.second.score;
+    });
+    for (auto &i: temp)
+        if (cc[i.first]) {
+            tabu = i.first;
+            break;
+        }
+    return tabu;
+}
+
+int select_add_vertex () {
+    std::vector<std::pair<int, vertex>> temp(add_score.begin(), add_score.end());
+    std::sort(temp.begin(), temp.end(), [] (std::pair<int, vertex> &lhs, std::pair<int, vertex> &rhs) {
+        if (lhs.second.score == rhs.second.score)
+            return lhs.second.age > rhs.second.age;
+        return lhs.second.score > rhs.second.score;
+    });
+    for (auto &i: temp)
+        if (cc[i.first] && i.first != tabu) {
+            tabu = i.first;
+            break;
+        }
+    return tabu;
+}
 
 //! Greedy Search
-//! TODO: do not erase the vertex from add_score and remove_score, just update the score and the age
 void greedy_search () {
     while (P.size() != n) {
-        auto &v = *(add_score.rbegin());
-        add_score.erase(v);
-
-        C.insert(v.v);
-        P.insert(v.v);
-        for (auto &u: neighbor[v.v]) {
-            P.insert(u);
-        }
-        check_prop(v.v);
+        auto v = select_add_vertex();
+        add(v);
+        check_prop(v);
         update_weight();
     }
     std::cout << "Greedy: " << C.size() << std::endl;
 }
 
-vertex &random_select () {
-    //! TODO: select a vertex from C randomly
-    std::uniform_int_distribution<> dis(0, int(remove_score.size() - 1));
-    int idx = dis(gen);
-    auto &v = *(remove_score.begin());
-    return const_cast <vertex &> (v);
-}
-
-void remove (const vertex &v) {
-    //! TODO: remove vertex from C
-    C.erase(v.v);
-}
-
-void add (vertex &v) {
-    //! TODO: add vertex to C
-    C.insert(v.v);
-    P.insert(v.v);
-    cc[v.v] = 0;
-    for (auto &u: neighbor[v.v]) {
-        P.insert(u);
-        cc[u] = 1;
-        //TODO: update u in add_score
-        auto &t = *(add_score.find(vertex{ u, 0, 0 }));
-        const_cast <vertex &> (t).score -= weight[v.v];
-    }
-    check_prop(v.v);
-    v.score = -v.score;
-    v.age = v.age + 1;
-}
-
-vertex &select_remove_vertex (vertex &v) {
-    int max_age = -1, min_score = 1e9;
-    for (auto &u: remove_score) {
-        if (min_score < u.score)
-            break;
-        if (cc[u.v] == 1) {
-            if (u.score < min_score) {
-                min_score = u.score;
-                max_age = u.age;
-                v = u;
-            } else if (u.age > max_age) {
-                max_age = u.age;
-                v = u;
-            }
-        }
-    }
-    return v;
-}
-
-vertex &select_add_vertex (vertex &v) {
-    int max_age = -1, max_score = -1;
-    for (std::reverse_iterator<std::set<vertex>::iterator> it(add_score.rbegin()); it != add_score.rend();
-         ++it) {
-        if (max_score > it->score)
-            break;
-        if (cc[it->v] == 1) {
-            if (it->score > max_score) {
-                max_score = it->score;
-                max_age = it->age;
-                v = *it;
-            } else if (it->age > max_age) {
-                max_age = it->age;
-                v = *it;
-            }
-        }
-    }
-    return v;
-}
-
 void pdsp () {
     greedy_search();
-    //! TODO: condition is not correct
-    while (C.size() > standard_answer){
+    /* exit(0); */
+    while (C.size() > standard_answer) {
         if (P.size() == n) {
-            auto &v = random_select();
+            auto v = random_select();
             remove(v);
             continue;
         }
-        auto v = vertex{ 0, 0, 0 };
-        select_remove_vertex(v);
+        auto v = select_remove_vertex();
         remove(v);
-        auto u = vertex{ 0, 0, 0 };
-        select_add_vertex(u);
+        auto u = select_add_vertex();
         add(u);
         update_weight();
     }
+    std::cout << "PDSP: " << C.size() << std::endl;
 }
 
 

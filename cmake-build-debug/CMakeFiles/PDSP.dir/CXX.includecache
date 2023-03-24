@@ -25,6 +25,10 @@ fstream
 -
 iostream
 -
+random
+-
+map
+-
 
 /root/PDSP/main.cpp
 pdsp.h

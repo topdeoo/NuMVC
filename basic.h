@@ -18,6 +18,7 @@
 #include <fstream>
 #include <iostream>
 #include <random>
+#include <map>
 
 int n, m; //! n: number of nodes, m: number of edges
 
@@ -79,7 +80,7 @@ struct bitmap {
 
 std::unordered_set<int, custom_hash> C; //! candidate set
 std::unordered_set<int, custom_hash> P; //! observed set
-std::unordered_map<int, bitmap, custom_hash> S; //! support set
+std::unordered_map<int, std::unordered_set<int, custom_hash>, custom_hash> S; //! support set
 
 //! edges
 std::unordered_map<int, std::vector<int>, custom_hash> edges;
@@ -92,25 +93,16 @@ std::unordered_map<int, std::vector<int>, custom_hash> neighbor;
 //! add_score is end()
 //! remove_score is begin()
 struct vertex {
-    int v, score, age;
-
-    bool operator< (const vertex &rhs) const {
-        if(v == rhs.v)
-            return true;
-        else if (score == rhs.score && age == rhs.age)
-            return v < rhs.v;
-        else if (score == rhs.score)
-            return age < rhs.age;
-        else
-            return score < rhs.score;
-    }
+    int score, age;
+    vertex () = default;
+    explicit vertex(int score, int age) : score(score), age(age) {}
 };
 
 //! score for adding vertex
-std::set<vertex> add_score;
+std::map<int, vertex> add_score;
 
 //! score for removing vertex
-std::set<vertex> remove_score;
+std::map<int, vertex> remove_score;
 
 //! weight for each vertex
 std::vector<int> weight;
@@ -123,7 +115,7 @@ double gama = 0.5;
 double roi = 0.3;
 
 //! CC strategy
-std::vector<int> cc;
+std::vector<bool> cc;
 int tabu;
 
 //! best solution
