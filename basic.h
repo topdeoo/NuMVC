@@ -116,7 +116,8 @@ double roi = 0.3;
 
 //! CC strategy
 std::vector<bool> cc;
-int tabu;
+//! tabu strategy 未来 n 次内不能被选中删除
+std::vector<short> tabu;
 
 //! best solution
 std::unordered_set<int, custom_hash> C_star;

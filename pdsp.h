@@ -2,8 +2,6 @@
 // Created by LENOVO on 2023/3/11.
 //
 
-//! TODO: PROP property check maybe wrong
-
 #ifndef PDSP_PDSP_H
 #define PDSP_PDSP_H
 
@@ -25,7 +23,6 @@ bool can_observed (int father) {
 }
 
 //! PROP property
-//! remove函数用prop算法反向维护
 void check_prop (int vertex) {
     bitmap is_in_stack(n);
     std::stack<std::pair<int, int>> _stack;
@@ -48,6 +45,7 @@ void check_prop (int vertex) {
             S[u.second].insert(u.first);
             P.insert(u.first);
             for (auto &v: neighbor[u.first]) {
+                add_score[v].score -= weight[u.first];
                 bool flag = P.find(v) != P.end();
                 if (!is_in_stack.find(v) && !flag) {
                     _stack.emplace(v, u.first);
@@ -84,12 +82,22 @@ void forget_weight () {
 }
 
 //! update weight
+//! TODO: update score
 void update_weight () {
     mean = 0;
     for (auto &w: weight) {
         w += 1;
         mean += w;
     }
+    for (auto &v: add_score) {
+        for (auto &u: neighbor[v.first])
+            if (P.find(u) == P.end())
+                v.second.score += weight[u];
+    }
+
+    for (auto &v: remove_score)
+        v.second.score -= int(S[v.first].size());
+
     mean /= double(weight.size());
     if (mean >= gama)
         forget_weight();
@@ -103,12 +111,14 @@ int random_select () {
         v++;
         count++;
     }
-    if (tabu == *v)
-        return *C.begin();
-    else {
-        tabu = *v;
+    if (tabu[*v] != 0) {
+        tabu[*v]--;
+        for (auto &u: C)
+            if (tabu[u] == 0)
+                return u;
+    } else
         return *v;
-    }
+    return -1;
 }
 
 void check_prop_remove (int vertex) {
@@ -141,6 +151,8 @@ void remove (const int &v) {
     cc[v] = false;
     for (auto &u: S[v]) {
         P.erase(u);
+    }
+    for (auto &u: neighbor[v]) {
         cc[u] = true;
     }
     check_prop_remove(v);
@@ -151,6 +163,8 @@ void remove (const int &v) {
         if (P.find(u) == P.end())
             score += weight[u];
     }
+    if (P.find(v) == P.end())
+        score += weight[v];
     add_score[v].score = score;
     add_score[v].age = age;
 }
@@ -169,7 +183,7 @@ void add (const int &v) {
     int age = add_score[v].age + 1;
     add_score.erase(v);
     //! insert v to remove_score
-    int score = 0;
+    int score = weight[v];
     for (auto &u: S[v]) {
         score += weight[u];
     }
@@ -185,12 +199,17 @@ int select_remove_vertex () {
             return lhs.second.age > rhs.second.age;
         return lhs.second.score < rhs.second.score;
     });
+    /* debug */
+/*    for(auto &i: temp){
+        std::cout << "v: " << i.first << " score: " << i.second.score << std::endl;
+    }*/
     for (auto &i: temp)
         if (cc[i.first]) {
-            tabu = i.first;
-            break;
+            if (tabu[i.first] != 0)
+                tabu[i.first]--;
+            else
+                return i.first;
         }
-    return tabu;
 }
 
 int select_add_vertex () {
@@ -200,12 +219,17 @@ int select_add_vertex () {
             return lhs.second.age > rhs.second.age;
         return lhs.second.score > rhs.second.score;
     });
+    /* debug */
+/*    for(auto &i: temp){
+        std::cout << "v: " << i.first << " score: " << i.second.score << std::endl;
+    }*/
+    int ret = -1;
     for (auto &i: temp)
-        if (cc[i.first] && i.first != tabu) {
-            tabu = i.first;
+        if (cc[i.first] && P.find(i.first) == P.end()) {
+            ret = i.first;
             break;
         }
-    return tabu;
+    return ret;
 }
 
 //! Greedy Search
@@ -213,8 +237,8 @@ void greedy_search () {
     while (P.size() != n) {
         auto v = select_add_vertex();
         add(v);
+        remove_score[v].age = 0;
         check_prop(v);
-        update_weight();
     }
     std::cout << "Greedy: " << C.size() << std::endl;
 }
@@ -222,16 +246,35 @@ void greedy_search () {
 void pdsp () {
     greedy_search();
     /* exit(0); */
-    while (C.size() > standard_answer) {
+    while (C.size() > standard_answer || P.size() != n) {
         if (P.size() == n) {
+
+            std::vector<std::pair<int, vertex>> temp(remove_score.begin(), remove_score.end());
+            std::sort(temp.begin(), temp.end(), [] (std::pair<int, vertex> &lhs, std::pair<int, vertex> &rhs) {
+                if (lhs.second.score == rhs.second.score)
+                    return lhs.second.age > rhs.second.age;
+                return lhs.second.score < rhs.second.score;
+            });
+            if (temp[0].second.score == 0) {
+                for (auto &v: temp) {
+                    if (v.second.score > 0)
+                        break;
+                    if (v.second.score == 0)
+                        remove(v.first);
+                }
+            }
+
             auto v = random_select();
+            while (v == -1) v = select_add_vertex();
             remove(v);
             continue;
         }
+        std::cout << n - P.size() << std::endl;
         auto v = select_remove_vertex();
         remove(v);
         auto u = select_add_vertex();
         add(u);
+        tabu[u] = 10; //! tabu
         update_weight();
     }
     std::cout << "PDSP: " << C.size() << std::endl;
