@@ -19,6 +19,7 @@
 #include <iostream>
 #include <random>
 #include <map>
+#include <queue>
 
 int n, m; //! n: number of nodes, m: number of edges
 

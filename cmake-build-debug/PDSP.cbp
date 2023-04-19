@@ -85,6 +85,9 @@
 		<Unit filename="/root/PDSP/basic.h">
 			<Option target="PDSP"/>
 		</Unit>
+		<Unit filename="/root/PDSP/checker.h">
+			<Option target="PDSP"/>
+		</Unit>
 		<Unit filename="/root/PDSP/main.cpp">
 			<Option target="PDSP"/>
 		</Unit>

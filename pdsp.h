@@ -10,9 +10,7 @@
 bool can_observed (int father) {
     if (C.find(father) != C.end())
         return true;
-    if (neighbor[father].size() <= 1) {
-        return true;
-    } else {
+    if (neighbor[father].size() >= 2) {
         int cnt = 0;
         for (auto &v: neighbor[father]) {
             if (P.find(v) != P.end())
@@ -20,50 +18,80 @@ bool can_observed (int father) {
         }
         return cnt >= neighbor[father].size() - 1;
     }
+    return false;
 }
 
-//! PROP property
-void check_prop (int vertex) {
+int can_prop (const int u) {
+    if (neighbor[u].size() == 1)
+        return -1;
+    int count = 0, t = -1, prev = -1;
+    for (auto &v: neighbor[u]) {
+        if (t != prev && prev != -1) {
+            t = -1;
+            break;
+        }
+        if (P.find(v) != P.end())
+            count++;
+        else
+            prev = t, t = v;
+    }
+    if (count >= neighbor[u].size() - 1 && t != -1)
+        return t;
+    return -1;
+}
+
+
+void check_prop(const int& vertex){
+    std::stack<int> _stack;
     bitmap is_in_stack(n);
-    std::stack<std::pair<int, int>> _stack;
-    for (auto &v: neighbor[vertex]) {
-        for (auto &u: neighbor[v]) {
-            if (is_in_stack.find(u) || P.find(u) != P.end())
-                continue;
-            else {
-                _stack.emplace(u, v);
+
+    for(auto& v: neighbor[vertex]){
+        _stack.emplace(v);
+        is_in_stack.set(v);
+        for(auto& u: neighbor[v]){
+            if(P.find(u) != P.end() && u != vertex && !is_in_stack.find(u)){
+                _stack.emplace(u);
                 is_in_stack.set(u);
             }
         }
     }
 
-    while (!_stack.empty()) {
-        std::pair<int, int> u = _stack.top();
+    while(!_stack.empty()){
+        int u = _stack.top();
         _stack.pop();
-        is_in_stack.reset(u.first);
-        if (can_observed(u.second)) {
-            S[u.second].insert(u.first);
-            P.insert(u.first);
-            for (auto &v: neighbor[u.first]) {
-                add_score[v].score -= weight[u.first];
-                bool flag = P.find(v) != P.end();
-                if (!is_in_stack.find(v) && !flag) {
-                    _stack.emplace(v, u.first);
+        is_in_stack.reset(u);
+
+        int t = can_prop(u);
+        if(t != -1){
+            P.insert(t);
+            S[u].insert(t);
+            //! S[vertex].insert(t);
+            if(!is_in_stack.find(t)){
+                _stack.emplace(t);
+                is_in_stack.set(t);
+            }
+
+            for(auto& v: neighbor[t]){
+                add_score[v].score -= weight[t];
+                if(!is_in_stack.find(v) && P.find(v) != P.end() && v != u){
+                    _stack.emplace(v);
                     is_in_stack.set(v);
                 }
             }
         }
     }
+
 }
 
 //! forget weight and recalculate score
+//! TODO: change when change test case
 void forget_weight () {
     for (auto &w: weight) {
         w = ceil(w * roi);
     }
-    for (auto v = 0; v < n; v++) {
+/*    for (auto v = 0; v < n; v++) {*/
 
-        /*for (auto v = 1; v <= n; v++) {*/
+    for (auto v = 1; v <= n; v++) {
         int temp = 0;
         if (C.find(v) == C.end()) {
             for (auto &u: neighbor[v]) {
@@ -82,7 +110,6 @@ void forget_weight () {
 }
 
 //! update weight
-//! TODO: update score
 void update_weight () {
     mean = 0;
     for (auto &w: weight) {
@@ -104,7 +131,7 @@ void update_weight () {
 }
 
 int random_select () {
-    std::uniform_int_distribution<> dis(0, int(C.size()));
+    std::uniform_int_distribution<> dis(0, int(C.size()) - 1);
     int offset = dis(gen), count = 0;
     auto v = C.begin();
     while (count < offset) {
@@ -121,9 +148,64 @@ int random_select () {
     return -1;
 }
 
+void prop_remove (const int vertex) {
+    auto &_prop = S[vertex];
+    std::vector<int> remove_list;
+    std::stack<int> _stack;
+    bitmap is_in_stack(n);
+
+    for (auto &v: _prop) {
+        std::vector<int> temp;
+        for (auto &u: neighbor[v]) {
+            if (can_observed(u)) {
+                P.insert(v);
+                S[u].insert(v);
+                cc[v] = false;
+                temp.emplace_back(v);
+                remove_list.emplace_back(v);
+                _stack.emplace(v);
+                is_in_stack.set(v);
+                break;
+            }
+        }
+    }
+
+    while (!_stack.empty()) {
+        int u = _stack.top();
+        _stack.pop();
+        is_in_stack.reset(u);
+
+        int t = can_prop(u);
+        if (t != -1) {
+            P.insert(t);
+            remove_list.emplace_back(t);
+            S[u].insert(t);
+            if (!is_in_stack.find(t)) {
+                _stack.emplace(t);
+                is_in_stack.set(t);
+            }
+            for (auto &v: neighbor[t]) {
+                if (!is_in_stack.find(v) && P.find(v) != P.end() && v != u) {
+                    _stack.emplace(v);
+                    is_in_stack.set(v);
+                }
+            }
+        }
+    }
+
+    for (auto &v: remove_list) {
+        S[vertex].erase(v);
+        remove_score[v].score -= weight[v];
+    }
+
+
+}
+
 void check_prop_remove (int vertex) {
     auto &_prop = S[vertex];
     std::vector<int> remove_list;
+    std::stack<int> _stack;
+    bitmap is_in_stack(n);
     for (auto &v: _prop) {
         for (auto &u: neighbor[v]) {
             if (can_observed(u)) {
@@ -131,31 +213,84 @@ void check_prop_remove (int vertex) {
                 S[u].insert(v);
                 cc[v] = false;
                 remove_list.emplace_back(v);
+                if (!is_in_stack.find(v)) {
+                    _stack.emplace(v);
+                    is_in_stack.set(v);
+                }
+                break;
             }
         }
     }
+
+    while (!_stack.empty()) {
+        int u = _stack.top();
+        _stack.pop();
+        is_in_stack.reset(u);
+        if (neighbor[u].size() == 1)
+            continue;
+        int count = 0, t = -1, prev = -1;
+        for (auto &v: neighbor[u]) {
+            if (t != prev && prev != -1)
+                break;
+            if (P.find(v) != P.end())
+                count++;
+            else
+                prev = t, t = v;
+        }
+        if (count >= neighbor[u].size() - 1 && t != -1) {
+            P.insert(t);
+            S[u].insert(t);
+            _stack.emplace(t);
+        }
+    }
+
     for (auto &v: remove_list) {
         _prop.erase(v);
     }
-    for (auto &u: neighbor[vertex]) {
-        if (can_observed(u)) {
-            P.insert(vertex);
-            S[u].insert(vertex);
+}
+
+/*void remove_observed (const int &v) {
+    std::queue<int> bfs;
+    bitmap check(n);
+    for (auto &u: S[v]) {
+        bfs.emplace(u);
+        check.set(u);
+    }
+    while (!bfs.empty()) {
+        int u = bfs.front();
+        bfs.pop();
+        P.erase(u);
+        if (S.find(u) != S.end()) {
+            for (auto &t: S[u]) {
+                if (!check.find(t)) {
+                    bfs.emplace(t);
+                    check.set(t);
+                }
+            }
         }
     }
-}
+}*/
 
 void remove (const int &v) {
     C.erase(v);
     P.erase(v);
     cc[v] = false;
+    //! debug
+    auto tmp = S[v];
+
     for (auto &u: S[v]) {
-        P.erase(u);
+        if (C.find(u) == C.end()) {
+            P.erase(u);
+            for (auto &t: S[u]) {
+                P.erase(t);
+            }
+        }
     }
     for (auto &u: neighbor[v]) {
         cc[u] = true;
     }
-    check_prop_remove(v);
+/*    remove_observed(v);*/
+    prop_remove(v);
     int age = remove_score[v].age;
     remove_score.erase(v);
     int score = 0;
@@ -172,9 +307,12 @@ void remove (const int &v) {
 void add (const int &v) {
     C.insert(v);
     P.insert(v);
+    S[v].insert(v);
     for (auto &u: neighbor[v]) {
-        P.insert(u);
-        S[v].insert(u);
+        if (P.find(u) == P.end()) {
+            P.insert(u);
+            S[v].insert(u);
+        }
         auto &t = add_score[u];
         t.score -= weight[v];
     }
@@ -200,16 +338,21 @@ int select_remove_vertex () {
         return lhs.second.score < rhs.second.score;
     });
     /* debug */
-/*    for(auto &i: temp){
+    /* for(auto &i: temp){
         std::cout << "v: " << i.first << " score: " << i.second.score << std::endl;
     }*/
-    for (auto &i: temp)
+    int ret = -1;
+    for (auto &i: temp) {
         if (cc[i.first]) {
             if (tabu[i.first] != 0)
                 tabu[i.first]--;
-            else
-                return i.first;
+            else {
+                ret = i.first;
+                break;
+            }
         }
+    }
+    return ret;
 }
 
 int select_add_vertex () {
@@ -220,15 +363,17 @@ int select_add_vertex () {
         return lhs.second.score > rhs.second.score;
     });
     /* debug */
-/*    for(auto &i: temp){
+    /* for(auto &i: temp){
         std::cout << "v: " << i.first << " score: " << i.second.score << std::endl;
     }*/
     int ret = -1;
-    for (auto &i: temp)
-        if (cc[i.first] && P.find(i.first) == P.end()) {
+    for (auto &i: temp) {
+        if (cc[i.first]) {
             ret = i.first;
             break;
-        }
+        } else if (cc[i.first] && ret == -1)
+            ret = i.first;
+    }
     return ret;
 }
 
@@ -238,7 +383,6 @@ void greedy_search () {
         auto v = select_add_vertex();
         add(v);
         remove_score[v].age = 0;
-        check_prop(v);
     }
     std::cout << "Greedy: " << C.size() << std::endl;
 }
@@ -269,8 +413,10 @@ void pdsp () {
             remove(v);
             continue;
         }
-        std::cout << n - P.size() << std::endl;
+
+        /* std::cout << n - P.size() << std::endl; */
         auto v = select_remove_vertex();
+        if (v == -1) continue;
         remove(v);
         auto u = select_add_vertex();
         add(u);

@@ -1,6 +1,11 @@
+#include "checker.h"
 #include "pdsp.h"
+#include <chrono>
+
+//! TODO: refactor this project
 
 //! build the initial graph
+//! TODO: change when change test case
 void init () {
     std::cin >> standard_answer;
     std::cin >> n >> m;
@@ -19,8 +24,8 @@ void init () {
     }
     //! for IEEE test case
     //! for other test case
-    for (int v = 0; v < n; v++) {
-/*    for (int v = 1; v <= n; v++) {*/
+/*    for (int v = 0; v < n; v++) {*/
+    for (int v = 1; v <= n; v++) {
         int score = 0;
         for (auto &u: neighbor[v])
             score += weight[u];
@@ -30,77 +35,41 @@ void init () {
     mean = 1;
 }
 
-bool check_observed (int father, std::unordered_set<int> &_prop) {
-    if (C.find(father) != C.end())
-        return true;
-    if (neighbor[father].size() <= 1) {
-        return true;
-    } else {
-        int cnt = 0;
-        for (auto &v: neighbor[father]) {
-            if (_prop.find(v) != _prop.end())
-                cnt++;
-        }
-        return cnt >= neighbor[father].size() - 1;
-    }
-}
-
-void prop (const int &vertex, std::unordered_set<int> &_prop) {
-    bitmap is_in_stack(n);
-    std::stack<std::pair<int, int>> _stack;
-    for (auto &v: neighbor[vertex]) {
-        for (auto &u: neighbor[v]) {
-            if (is_in_stack.find(u) || _prop.find(u) != _prop.end())
-                continue;
-            else {
-                _stack.emplace(u, v);
-                is_in_stack.set(u);
-            }
-        }
-    }
-
-    while (!_stack.empty()) {
-        std::pair<int, int> u = _stack.top();
-        _stack.pop();
-        is_in_stack.reset(u.first);
-        if (check_observed(u.second, _prop)) {
-            _prop.insert(u.first);
-            for (auto &v: neighbor[u.first]) {
-                bool flag = _prop.find(v) != _prop.end();
-                if (!is_in_stack.find(v) && !flag) {
-                    _stack.emplace(v, u.first);
-                    is_in_stack.set(v);
-                }
-            }
-        }
-    }
-}
-
-void check_solution () {
-    std::unordered_set<int> observed_set;
-    for (auto &v: C) {
-        observed_set.insert(v);
-        for (auto &u: neighbor[v]) {
-            observed_set.insert(u);
-        }
-        prop(v, observed_set);
-    }
-    if (observed_set.size() != n)
-        std::cout << "Not Correct" << std::endl;
-    else
-        std::cout << "Completely Dominating" << std::endl;
-}
-
 int main () {
     std::ios::sync_with_stdio(false);
     std::cin.tie(nullptr);
     /*std::ifstream ifs("example.in");*/
     init();
+
+    auto start = std::chrono::steady_clock::now();
     pdsp();
-/*    if (P.size() == n)
-        std::cout << "Completely Dominating" << std::endl;
-    else
-        std::cout << "Not Correct" << std::endl;*/
-    check_solution();
+    auto end = std::chrono::steady_clock::now();
+    std::cout << "Elapsed time in milliseconds: "
+         << std::chrono::duration_cast<std::chrono::microseconds>(end - start).count()
+         << " us" << std::endl;
+    /* debug: test case is IEEE-30.graph */
+/*    add(6);
+    add(10);
+    add(27);*/
+    checker c(C);
+    c.check();
+    c.is_correct();
     return 0;
 }
+
+/*
+12 13
+1 2
+1 4
+1 3
+1 5
+2 12
+3 11
+3 10
+3 9
+4 8
+4 6
+4 7
+5 8
+7 8
+ */
