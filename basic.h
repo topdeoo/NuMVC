@@ -20,6 +20,7 @@
 #include <random>
 #include <map>
 #include <queue>
+#include <algorithm>
 
 int n, m; //! n: number of nodes, m: number of edges
 
@@ -82,6 +83,7 @@ struct bitmap {
 std::unordered_set<int, custom_hash> C; //! candidate set
 std::unordered_set<int, custom_hash> P; //! observed set
 std::unordered_map<int, std::unordered_set<int, custom_hash>, custom_hash> S; //! support set
+std::unordered_map<int, int> Link; //! record the vertex is supported by which vertex
 
 //! edges
 std::unordered_map<int, std::vector<int>, custom_hash> edges;

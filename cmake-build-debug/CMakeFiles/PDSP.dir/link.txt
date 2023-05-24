@@ -1,1 +1,0 @@
-/usr/bin/c++   -Os -Wall -g   CMakeFiles/PDSP.dir/main.cpp.o  -o PDSP 

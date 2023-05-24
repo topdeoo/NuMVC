@@ -6,7 +6,7 @@
 
 //! build the initial graph
 //! TODO: change when change test case
-void init () {
+void init() {
     std::cin >> standard_answer;
     std::cin >> n >> m;
     weight.resize(n + 1);
@@ -26,16 +26,17 @@ void init () {
     //! for other test case
 /*    for (int v = 0; v < n; v++) {*/
     for (int v = 1; v <= n; v++) {
+        Link[v] = 0;
         int score = 0;
         for (auto &u: neighbor[v])
             score += weight[u];
         score += weight[v];
-        add_score.insert({ v, vertex{ score, 0 }});
+        add_score.insert({v, vertex{score, 0}});
     }
     mean = 1;
 }
 
-int main () {
+int main() {
     std::ios::sync_with_stdio(false);
     std::cin.tie(nullptr);
     /*std::ifstream ifs("example.in");*/
@@ -45,12 +46,18 @@ int main () {
     pdsp();
     auto end = std::chrono::steady_clock::now();
     std::cout << "Elapsed time in milliseconds: "
-         << std::chrono::duration_cast<std::chrono::microseconds>(end - start).count()
-         << " us" << std::endl;
-    /* debug: test case is IEEE-30.graph */
-/*    add(6);
+              << std::chrono::duration_cast<std::chrono::microseconds>(end - start).count()
+              << " us" << std::endl;
+    // debug: test case is IEEE-30.graph
+    /*add(6);
     add(10);
-    add(27);*/
+    add(27);
+    std::cout << Link[12];
+    remove(6);
+    std::cout << '\n' << Link[12] << '\n';
+    for (auto &i: P) {
+        std::cout << i << " ";
+    }*/
     checker c(C);
     c.check();
     c.is_correct();
