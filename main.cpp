@@ -6,9 +6,9 @@
 #include "checker.h"
 #include "pdsp.h"
 
-// TODO refactor this project
+// TODO(virgil) refactor this project
 
-// TODO add comments for each function
+// DONE(virgil) add comments for each function
 
 // TAG change when change test case
 //! @fn init

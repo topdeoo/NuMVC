@@ -162,7 +162,7 @@ int random_select() {
   return -1;
 }
 
-// FIXME when remove a vertex from C, how to maintain the prop property
+// FIXME(virgil) when remove a vertex from C, how to maintain the prop property
 /*
 void prop_remove (const int vertex) {
     auto &_prop = S[vertex];
@@ -218,7 +218,7 @@ void prop_remove (const int vertex) {
 }
 */
 
-// FIXME low effeciency
+// FIXME(virgil) low effeciency
 //! @fn back_prop
 //! @brief maintain the prop property when delete a vertex from C
 //! @details 1. 将 S[v] 中的点全部从 P 中移除, 然后查看是否有不需要移除的点

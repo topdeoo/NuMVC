@@ -28,6 +28,8 @@ int n, m;
 //! @link https://codeforces.com/blog/entry/62393
 
 struct custom_hash {
+  //! @fn splitmix64
+  //! @brief hash function
   static uint64_t splitmix64(uint64_t x) {
     x += 0x9e3779b97f4a7c15;
     x = (x ^ (x >> 30)) * 0xbf58476d1ce4e5b9;
@@ -35,6 +37,7 @@ struct custom_hash {
     return x ^ (x >> 31);
   }
 
+  //! @brief get hash value
   size_t operator()(uint64_t x) const {
     static const uint64_t FIXED_RANDOM = std::chrono::steady_clock::now().time_since_epoch().count();
     return splitmix64(x + FIXED_RANDOM);
@@ -43,31 +46,40 @@ struct custom_hash {
 
 //! @brief bitmap for support set
 struct bitmap {
+  //! @var _bit: bitmap
   std::vector<size_t> _bit;
 
   bitmap() = default;
 
   explicit bitmap(size_t size) : _bit(size / 32 + 1) {}
 
+  //! @fn set
+  //! @brief set the bit to 1 at pos
   void set(const size_t &pos) {
     size_t index = pos / 32;
     size_t offset = pos % 32;
     _bit[index] |= (1 << offset);
   }
 
+  //! @fn find
+  //! @brief find the bit whether is 1 at pos
   bool find(const size_t &pos) {
     size_t index = pos / 32;
     size_t offset = pos % 32;
     return (_bit[index] >> offset) & 1;
   }
 
+  //! @fn reset
+  //! @brief reset the bit to 0 at pos
   void reset(const size_t &pos) {
     size_t index = pos / 32;
     size_t offset = pos % 32;
     _bit[index] &= ~(1 << offset);
   }
 
-  // judge the vertex u whether is only domain by vertex v
+  // NOTE low efficiency
+  //! @fn is_only
+  //! @brief judge the vertex u whether is only domain by vertex v
   bool is_only() {
     int cnt = 0;
     for (auto &i : _bit) {
