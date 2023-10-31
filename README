@@ -1,0 +1,11 @@
+# Usage
+
+```bash
+docker build . -t nupds
+```
+
+```bash
+mkdir -p build
+cmake --build build -j`nproc`
+./build/main <input_file> <output_file>
+```
