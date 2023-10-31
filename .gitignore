@@ -1,10 +1,10 @@
-cmake-build-debug/*
-
-greedy_output/
-
 build/
 
-.vscode/*
-.idea/*
+.vscode/
+.idea/
 
-.cache/*
+.cache/
+
+.clangd
+
+test/

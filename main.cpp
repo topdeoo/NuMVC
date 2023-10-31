@@ -1,10 +1,10 @@
 //! @file main program
 //! @author Virgil
-#include <chrono>
-#include <fstream>
 #include "basic.h"
 #include "checker.h"
 #include "pdsp.h"
+#include <chrono>
+#include <fstream>
 
 // TODO(virgil) refactor this project
 
@@ -35,7 +35,8 @@ void init() {
   for (int v = 1; v <= n; v++) {
     Link[v] = 0;
     int score = 0;
-    for (auto &u : neighbor[v]) score += weight[u];
+    for (auto &u : neighbor[v])
+      score += weight[u];
     score += weight[v];
     add_score.insert({v, vertex{score, 0}});
   }
@@ -67,7 +68,8 @@ void init(std::ifstream &input) {
   for (int v = 1; v <= n; v++) {
     Link[v] = 0;
     int score = 0;
-    for (auto &u : neighbor[v]) score += weight[u];
+    for (auto &u : neighbor[v])
+      score += weight[u];
     score += weight[v];
     add_score.insert({v, vertex{score, 0}});
   }
@@ -87,7 +89,10 @@ int main() {
   pdsp();
   auto end = std::chrono::steady_clock::now();
   std::cout << "Elapsed time in milliseconds: "
-            << std::chrono::duration_cast<std::chrono::microseconds>(end - start).count() << " us" << std::endl;
+            << std::chrono::duration_cast<std::chrono::microseconds>(end -
+                                                                     start)
+                   .count()
+            << " us" << std::endl;
   // debug: test case is IEEE-30.graph
   /*add(6);
   add(10);
