@@ -4,17 +4,42 @@
 #include <iostream>
 #include <stack>
 
-bool check(const Graph &g, const set<u32> &sol) {
-  NuPDS pds(g);
-  for (auto &v : sol) {
-    std::stack<u32> stack_;
-    pds.observe_one(v, v, stack_);
-    for (auto &w : g.get_in_edges(v)) {
-      pds.observe_one(w, v, stack_);
+set<u32> observed;
+map<u32, u32> unobserved_deg;
+
+void propagate(std::stack<u32> &stack_, Graph &g) {
+  while (!stack_.empty()) {
+    auto v = stack_.top();
+    stack_.pop();
+    for (auto &w : g.get_neighbors(v)) {
+      if (observed.find(w) == observed.end()) {
+        observed.insert(w);
+        stack_.push(w);
+      }
     }
-    pds.propagate(stack_);
   }
-  return pds.all_observed();
+}
+
+bool check(Graph &g, const set<u32> &sol) {
+
+  for (auto &v : g.vertices()) {
+    unobserved_deg[v] = g.degree(v);
+  }
+
+  for (auto &v : sol) {
+    observed.insert(v);
+    std::stack<u32> stack_;
+    for (auto &u : g.get_neighbors(v)) {
+      unobserved_deg[u] -= 1;
+      observed.insert(u);
+      if (unobserved_deg[u] == 1) {
+        stack_.push(u);
+      }
+    }
+    propagate(stack_, g);
+  }
+
+  return observed.size() == g.vertex_nums();
 }
 
 int main(int argc, const char *argv[]) {

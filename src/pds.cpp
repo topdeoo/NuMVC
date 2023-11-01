@@ -144,8 +144,8 @@ void NuPDS::remove_from_solution(u32 v) {
 
 u32 NuPDS::select_add_vertex() {
   std::vector<std::pair<u32, u32>> candidates;
-  u32 ret = 0;
-  while (1) {
+  u32 ret = graph_.vertex_nums();
+  while (candidates.size() < solution_.size()) {
     auto v = top(HEAPTYPE::ADD);
     pop(HEAPTYPE::ADD);
     if (cc[v.first] && tabu[v.first] == 0) {
@@ -157,6 +157,10 @@ u32 NuPDS::select_add_vertex() {
       candidates.push_back(v);
     }
   }
+  if (ret == graph_.vertex_nums()) {
+    ret = candidates.back().first;
+    candidates.pop_back();
+  }
   for (auto &v : candidates) {
     insert(v, HEAPTYPE::ADD);
   }
@@ -165,8 +169,8 @@ u32 NuPDS::select_add_vertex() {
 
 u32 NuPDS::select_remove_vertex() {
   std::vector<std::pair<u32, u32>> candidates;
-  u32 ret = 0;
-  while (1) {
+  u32 ret = graph_.vertex_nums();
+  while (candidates.size() < solution_.size()) {
     auto v = top(HEAPTYPE::REMOVE);
     pop(HEAPTYPE::REMOVE);
     if (cc[v.first] && tabu[v.first] == 0) {
@@ -178,6 +182,10 @@ u32 NuPDS::select_remove_vertex() {
       candidates.push_back(v);
     }
   }
+  if (ret == graph_.vertex_nums()) {
+    ret = candidates.back().first;
+    candidates.pop_back();
+  }
   for (auto &v : candidates) {
     insert(v, HEAPTYPE::REMOVE);
   }
@@ -185,7 +193,7 @@ u32 NuPDS::select_remove_vertex() {
 }
 
 void NuPDS::greedy() {
-  while (observed_.size() != graph_.vertex_nums()) {
+  while (dependencies_.vertex_nums() != graph_.vertex_nums()) {
     auto v = top(HEAPTYPE::ADD);
     pop(HEAPTYPE::ADD);
     add_into_solution(v.first);
@@ -196,9 +204,10 @@ void NuPDS::greedy() {
 
 void NuPDS::solve() {
   greedy();
+  best_solution_ = solution_;
   while (timestamp_ < cutoff_ && solution_.size() > 1) {
     timestamp_++;
-    if (observed_.size() == graph_.vertex_nums()) {
+    if (dependencies_.vertex_nums() == graph_.vertex_nums()) {
       best_solution_ = solution_;
       auto v = top(HEAPTYPE::REMOVE);
       pop(HEAPTYPE::REMOVE);
@@ -214,9 +223,6 @@ void NuPDS::solve() {
     pop(HEAPTYPE::ADD);
     add_into_solution(v_add);
     age[v_add] = timestamp_;
-  }
-  if (best_solution_.empty()) {
-    best_solution_ = solution_;
   }
 }
 
