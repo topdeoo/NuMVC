@@ -43,7 +43,7 @@ public:
   void remove_vertex(u32 v);
   bool has_vertex(u32 v) const;
   u32 degree(u32 v) const;
-  u32 in_degree(u32 v) const;
+  u32 in_degree(u32 v);
 
   // function of edge
   void add_edge(u32 u, u32 v);
@@ -54,6 +54,7 @@ public:
 
   // function of neighbors
   const set<u32> &get_neighbors(u32 v);
+  bool has_neighbors(u32 v) const;
 };
 
 #endif // __GRAPH_HPP__

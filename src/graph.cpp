@@ -38,7 +38,13 @@ u32 Graph::degree(u32 v) const {
   }
 }
 
-u32 Graph::in_degree(u32 v) const { return in_neighbors_.at(v).size(); }
+u32 Graph::in_degree(u32 v) {
+  if (in_neighbors_.find(v) == in_neighbors_.end()) {
+    in_neighbors_[v] = set<u32>();
+    return 0;
+  }
+  return in_neighbors_.at(v).size();
+}
 
 void Graph::add_edge(u32 u, u32 v) {
   if (!has_vertex(u) || !has_vertex(v)) {
@@ -72,6 +78,10 @@ bool Graph::has_edge(u32 from, u32 to) const {
   } else {
     return false;
   }
+}
+
+bool Graph::has_neighbors(u32 v) const {
+  return neighbors_.find(v) != neighbors_.end();
 }
 
 const set<u32> &Graph::get_in_edges(u32 v) const { return in_neighbors_.at(v); }

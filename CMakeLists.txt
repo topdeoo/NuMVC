@@ -10,5 +10,7 @@ include_directories(include)
 add_library(pds_shared SHARED src/heap.cpp src/graph.cpp src/pds.cpp)
 
 add_executable(main src/main.cpp)
+add_executable(checker src/checker.cpp)
 
 target_link_libraries(main pds_shared)
+target_link_libraries(checker pds_shared)

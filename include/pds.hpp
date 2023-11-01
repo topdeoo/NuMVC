@@ -42,6 +42,7 @@ public:
   void remove_from_solution(u32 v);
   u32 select_add_vertex();
   u32 select_remove_vertex();
+  bool all_observed();
 
 public:
   const set<u32> &get_solution() const;

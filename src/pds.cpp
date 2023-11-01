@@ -68,6 +68,8 @@ void NuPDS::propagate(std::stack<u32> &stack_) {
 
 bool NuPDS::is_observed(u32 v) { return observed_.find(v) != observed_.end(); }
 
+bool NuPDS::all_observed() { return observed_.size() == graph_.vertex_nums(); }
+
 bool NuPDS::is_in_solution(u32 v) {
   return solution_.find(v) != solution_.end();
 }
@@ -115,10 +117,12 @@ void NuPDS::remove_from_solution(u32 v) {
               enqueued.insert(w);
             }
           } else if (is_observed(w)) {
-            for (auto x : dependencies_.get_neighbors(w)) {
-              if (enqueued.find(w) == enqueued.end()) {
-                stack_.push(x);
-                enqueued.insert(x);
+            if (dependencies_.has_neighbors(w)) {
+              for (auto x : dependencies_.get_neighbors(w)) {
+                if (enqueued.find(w) == enqueued.end()) {
+                  stack_.push(x);
+                  enqueued.insert(x);
+                }
               }
             }
             propagating.push(w);
