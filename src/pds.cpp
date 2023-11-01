@@ -9,7 +9,7 @@ void NuPDS::init(std::ifstream &fin) {
   u32 n, m;
   fin >> n >> m;
 
-  for (int i = 0; i < m; i++) {
+  for (u32 i = 0; i < m; i++) {
     u32 from, to;
     fin >> from >> to;
     graph_.add_edge(from, to);
@@ -22,11 +22,11 @@ void NuPDS::init(std::ifstream &fin) {
     unobserved_degree_[v] = graph_.degree(v);
     age[v] = 0;
     cc[v] = true;
-    tabu[v] = 10;
+    tabu[v] = 0;
   }
 
   // TODO
-  cutoff_ = 100;
+  cutoff_ = 100000;
 
   init_heap(n, graph_);
 }
@@ -220,7 +220,6 @@ void NuPDS::solve() {
     remove_from_solution(v_remove);
     age[v_remove] = timestamp_;
     auto v_add = select_add_vertex();
-    pop(HEAPTYPE::ADD);
     add_into_solution(v_add);
     age[v_add] = timestamp_;
   }
