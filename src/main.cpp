@@ -22,6 +22,8 @@ int main(int argc, const char *argv[]) {
 
   pds.init(fin);
 
+  pds.pre_process();
+
   auto t0 = now();
 
   pds.solve();
@@ -30,7 +32,7 @@ int main(int argc, const char *argv[]) {
 
   fout << t << std::endl;
 
-  fout << std::chrono::duration_cast<std::chrono::milliseconds>(t1 - t0).count()
+  fout << std::chrono::duration_cast<std::chrono::microseconds>(t1 - t0).count()
        << "us" << std::endl;
 
   auto solution = pds.get_best_solution();
