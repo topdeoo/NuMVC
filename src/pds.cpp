@@ -52,6 +52,14 @@ void NuPDS::pre_process() {
   for (auto &v : pre_selected_) {
     add_into_solution(v);
   }
+  while (add_heap_index > 0) {
+    pop(HEAPTYPE::ADD);
+  }
+  for (auto &v : graph_.vertices()) {
+    if (!is_in_solution(v) && not_exculded(v)) {
+      insert({v, unobserved_degree_[v]}, HEAPTYPE::ADD);
+    }
+  }
 }
 
 void NuPDS::observe(u32 vertex, u32 origin) {
