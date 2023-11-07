@@ -55,6 +55,9 @@ void NuPDS::pre_process() {
   while (add_heap_index > 0) {
     pop(HEAPTYPE::ADD);
   }
+  while (remove_heap_index > 0) {
+    pop(HEAPTYPE::REMOVE);
+  }
   for (auto &v : graph_.vertices()) {
     if (!is_in_solution(v) && not_exculded(v)) {
       insert({v, unobserved_degree_[v]}, HEAPTYPE::ADD);

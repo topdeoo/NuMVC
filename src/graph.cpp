@@ -96,4 +96,9 @@ bool Graph::has_neighbors(u32 v) const {
 
 const set<u32> &Graph::get_in_edges(u32 v) const { return in_neighbors_.at(v); }
 
-const set<u32> &Graph::get_neighbors(u32 v) { return neighbors_.at(v); }
+const set<u32> &Graph::get_neighbors(u32 v) {
+  if (neighbors_.find(v) == neighbors_.end()) {
+    neighbors_[v] = set<u32>();
+  }
+  return neighbors_.at(v);
+}
