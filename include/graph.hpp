@@ -28,8 +28,10 @@ private:
   map<u32, set<u32>>
       neighbors_; // neighbors_[i] indicates the set of neighbors of node i
 
-  map<u32, set<u32>> in_neighbors_; // in_neighbors_[i] indicates the set of
-                                    // in-neighbors of node i
+  map<u32, set<u32>> in_neighbors_;  // in_neighbors_[i] indicates the set of
+                                     // in-neighbors of node i
+  map<u32, set<u32>> out_neighbors_; // out_neighbors_[i] indicates the set of
+                                     // out-neighbors of node i
 
 public:
   // function of graph
@@ -43,6 +45,7 @@ public:
   bool has_vertex(u32 v) const;
   u32 degree(u32 v) const;
   u32 in_degree(u32 v);
+  u32 out_degree(u32 v);
 
   // function of edge
   void add_edge(u32 u, u32 v);

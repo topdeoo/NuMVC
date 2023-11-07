@@ -118,6 +118,7 @@ void NuPDS::add_into_solution(u32 v) {
     while (dependencies_.in_degree(v) > 0) {
       auto edge = *dependencies_.get_in_edges(v).begin();
       dependencies_.remove_edge(edge, v);
+      dependencies_.remove_edge(v, edge);
     }
   }
   std::stack<u32> stack_;
@@ -127,7 +128,7 @@ void NuPDS::add_into_solution(u32 v) {
     observe_one(w, v, stack_);
   }
   propagate(stack_);
-  insert({v, dependencies_.in_degree(v)}, HEAPTYPE::REMOVE);
+  insert({v, dependencies_.out_degree(v)}, HEAPTYPE::REMOVE);
 }
 
 void NuPDS::remove_from_solution(u32 v) {

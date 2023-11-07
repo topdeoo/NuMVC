@@ -46,6 +46,14 @@ u32 Graph::in_degree(u32 v) {
   return in_neighbors_.at(v).size();
 }
 
+u32 Graph::out_degree(u32 v) {
+  if (out_neighbors_.find(v) == out_neighbors_.end()) {
+    out_neighbors_[v] = set<u32>();
+    return 0;
+  }
+  return out_neighbors_.at(v).size();
+}
+
 void Graph::add_edge(u32 u, u32 v) {
   if (!has_vertex(u) || !has_vertex(v)) {
     add_vertex(v);
@@ -53,6 +61,7 @@ void Graph::add_edge(u32 u, u32 v) {
   }
   neighbors_[u].insert(v);
   in_neighbors_[v].insert(u);
+  out_neighbors_[u].insert(v);
   m_++;
 }
 
@@ -60,6 +69,7 @@ void Graph::remove_edge(u32 u, u32 v) {
   if (has_vertex(u) && has_vertex(v)) {
     neighbors_[u].erase(v);
     in_neighbors_[v].erase(u);
+    out_neighbors_[u].erase(v);
     m_--;
   }
 }
