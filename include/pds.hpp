@@ -47,6 +47,7 @@ public:
   u32 select_add_vertex();
   u32 select_remove_vertex();
   bool all_observed();
+  u32 Ob(u32 v);
 
 public:
   const set<u32> &get_solution() const;

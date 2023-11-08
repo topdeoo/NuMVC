@@ -102,7 +102,7 @@ void pop(HEAPTYPE which) {
   down(1, which);
 }
 
-void init_heap(u32 n, const Graph &graph) {
+void init_heap(u32 n, Graph &graph) {
 
   add_heap_index = remove_heap_index = 0;
   add_score.resize(n + 1);
@@ -110,6 +110,11 @@ void init_heap(u32 n, const Graph &graph) {
 
   auto vertices = graph.vertices();
   for (auto &v : vertices) {
-    insert({v, graph.degree(v)}, HEAPTYPE::ADD);
+    u32 score = 0;
+    for (auto &w : graph.get_neighbors(v)) {
+      score += graph.degree(w);
+    }
+    score += graph.degree(v);
+    insert({v, score}, HEAPTYPE::ADD);
   }
 }

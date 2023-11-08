@@ -21,6 +21,6 @@ u32 right_child(u32 index);
 void insert(const std::pair<u32, u32> &entry, HEAPTYPE which);
 std::pair<u32, u32> &top(HEAPTYPE which);
 void pop(HEAPTYPE which);
-void init_heap(u32 n, const Graph &graph);
+void init_heap(u32 n, Graph &graph);
 
 #endif // __HEAP_H__
