@@ -1,6 +1,10 @@
 #include "heap.h"
 #include "basic.hpp"
 #include "graph.hpp"
+#include <algorithm>
+#include <cstdint>
+#include <functional>
+#include <random>
 #include <utility>
 #include <vector>
 
@@ -9,6 +13,14 @@ u32 add_heap_index;
 std::vector<std::pair<u32, u32>> removing_score;
 u32 remove_heap_index;
 map<u32, u32> age;
+
+static std::random_device rd{"hw"};
+
+static bool random_x() {
+  static auto gen = std::bind(std::uniform_int_distribution<>(0, 1),
+                              std::default_random_engine(rd()));
+  return gen();
+}
 
 u32 parient(u32 index) { return index / 2; }
 u32 left_child(u32 index) { return 2 * index; }
@@ -23,6 +35,9 @@ static void up(u32 index, HEAPTYPE which) {
         goto add_swap;
       } else if (u.second == v.second && age[u.first] < age[v.first]) {
         goto add_swap;
+      } else if (u.second == v.second && age[u.first] == age[v.first] &&
+                 random_x()) {
+        goto add_swap;
       }
     add_swap:
       std::swap(add_score[parient(index)], add_score[index]);
@@ -36,6 +51,9 @@ static void up(u32 index, HEAPTYPE which) {
         goto remove_swap;
       } else if (u.second == v.second && age[u.first] < age[v.first]) {
         goto remove_swap;
+      } else if (u.second == v.second && age[u.first] == age[v.first] &&
+                 random_x()) {
+        goto remove_swap;
       }
     remove_swap:
       std::swap(removing_score[parient(index)], removing_score[index]);
@@ -45,32 +63,170 @@ static void up(u32 index, HEAPTYPE which) {
 }
 
 static void down(u32 index, HEAPTYPE which) {
+  u32 l = left_child(index), r = right_child(index);
   if (which == HEAPTYPE::ADD) {
-    auto temp = index;
-    if (left_child(index) <= add_heap_index &&
-        add_score[temp].second < add_score[left_child(index)].second)
-      temp = left_child(index);
-    if (right_child(index) <= add_heap_index &&
-        add_score[temp].second < add_score[right_child(index)].second)
-      temp = right_child(index);
-    if (temp != index) {
-      std::swap(add_score[temp], add_score[index]);
-      down(temp, which);
+    u32 largest = 0;
+    if (l <= add_heap_index && add_score[l].second > add_score[index].second) {
+      largest = l;
+    } else if (l <= add_heap_index &&
+               add_score[l].second == add_score[index].second) {
+      if (age[add_score[l].first] < age[add_score[index].first]) {
+        largest = l;
+      } else if (age[add_score[l].first] == age[add_score[index].first] &&
+                 random_x()) {
+        largest = l;
+      } else {
+        largest = index;
+      }
+    } else {
+      largest = index;
     }
+
+    if (r <= add_heap_index &&
+        add_score[r].second > add_score[largest].second) {
+      largest = r;
+    } else if (r <= add_heap_index &&
+               add_score[r].second == add_score[largest].second) {
+      if (age[add_score[r].first] < age[add_score[largest].first]) {
+        largest = r;
+      } else if (age[add_score[r].first] == age[add_score[largest].first] &&
+                 random_x()) {
+        largest = r;
+      } else {
+        largest = index;
+      }
+    } else {
+      largest = index;
+    }
+
+    if (largest != index) {
+      std::swap(add_score[index], add_score[largest]);
+      down(largest, which);
+    }
+
   } else {
-    auto temp = index;
-    if (left_child(index) <= remove_heap_index &&
-        removing_score[temp].second > removing_score[left_child(index)].second)
-      temp = left_child(index);
-    if (right_child(index) <= add_heap_index &&
-        removing_score[temp].second > removing_score[right_child(index)].second)
-      temp = right_child(index);
-    if (temp != index) {
-      std::swap(removing_score[temp], removing_score[index]);
-      down(temp, which);
+    u32 smallest = 0;
+    if (l <= remove_heap_index &&
+        removing_score[l].second < removing_score[index].second) {
+      smallest = l;
+    } else if (l <= remove_heap_index &&
+               removing_score[l].second == removing_score[index].second) {
+      if (age[removing_score[l].first] < age[removing_score[index].first]) {
+        smallest = l;
+      } else if (age[removing_score[l].first] ==
+                     age[removing_score[index].first] &&
+                 random_x()) {
+        smallest = l;
+      } else {
+        smallest = index;
+      }
+    } else {
+      smallest = index;
+    }
+
+    if (r <= remove_heap_index &&
+        removing_score[r].second < removing_score[smallest].second) {
+      smallest = r;
+    } else if (r <= remove_heap_index &&
+               removing_score[r].second == removing_score[smallest].second) {
+      if (age[removing_score[r].first] < age[removing_score[smallest].first]) {
+        smallest = r;
+      } else if (age[removing_score[r].first] ==
+                     age[removing_score[smallest].first] &&
+                 random_x()) {
+        smallest = r;
+      }
+    }
+
+    if (smallest != index) {
+      std::swap(removing_score[index], removing_score[smallest]);
+      down(smallest, which);
     }
   }
 }
+
+// static void down(u32 index, HEAPTYPE which) {
+//   if (which == HEAPTYPE::ADD) {
+//     auto temp = index;
+
+//     if (left_child(index) <= add_heap_index) {
+//       if (add_score[temp].second < add_score[left_child(index)].second)
+//         temp = left_child(index);
+//       else if (add_score[temp].second == add_score[left_child(index)].second
+//       &&
+//                age[add_score[temp].first] >
+//                    age[add_score[left_child(index)].first])
+//         temp = left_child(index);
+//       else if (add_score[temp].second == add_score[left_child(index)].second
+//       &&
+//                age[add_score[temp].first] ==
+//                    age[add_score[left_child(index)].first] &&
+//                random_x())
+//         temp = left_child(index);
+//     }
+
+//     if (right_child(index) <= add_heap_index) {
+//       if (add_score[temp].second < add_score[right_child(index)].second)
+//         temp = right_child(index);
+//       else if (add_score[temp].second == add_score[right_child(index)].second
+//       &&
+//                age[add_score[temp].first] >
+//                    age[add_score[right_child(index)].first])
+//         temp = right_child(index);
+//       else if (add_score[temp].second == add_score[right_child(index)].second
+//       &&
+//                age[add_score[temp].first] ==
+//                    age[add_score[right_child(index)].first] &&
+//                random_x())
+//         temp = right_child(index);
+//     }
+
+//     if (temp != index) {
+//       std::swap(add_score[temp], add_score[index]);
+//       down(temp, which);
+//     }
+//   } else {
+//     auto temp = index;
+//     if (left_child(index) <= remove_heap_index) {
+//       if (removing_score[temp].second >
+//           removing_score[left_child(index)].second)
+//         temp = left_child(index);
+//       else if (removing_score[temp].second ==
+//                    removing_score[left_child(index)].second &&
+//                age[removing_score[temp].first] >
+//                    age[removing_score[left_child(index)].first])
+//         temp = left_child(index);
+//       else if (removing_score[temp].second ==
+//                    removing_score[left_child(index)].second &&
+//                age[removing_score[temp].first] ==
+//                    age[removing_score[left_child(index)].first] &&
+//                random_x())
+//         temp = left_child(index);
+//     }
+
+//     if (right_child(index) <= add_heap_index) {
+//       if (removing_score[temp].second >
+//           removing_score[right_child(index)].second)
+//         temp = right_child(index);
+//       else if (removing_score[temp].second ==
+//                    removing_score[right_child(index)].second &&
+//                age[removing_score[temp].first] >
+//                    age[removing_score[right_child(index)].first])
+//         temp = right_child(index);
+//       else if (removing_score[temp].second ==
+//                    removing_score[right_child(index)].second &&
+//                age[removing_score[temp].first] ==
+//                    age[removing_score[right_child(index)].first] &&
+//                random_x())
+//         temp = right_child(index);
+//     }
+
+//     if (temp != index) {
+//       std::swap(removing_score[temp], removing_score[index]);
+//       down(temp, which);
+//     }
+//   }
+// }
 
 void insert(const std::pair<u32, u32> &entry, HEAPTYPE which) {
   if (which == HEAPTYPE::ADD) {
@@ -107,14 +263,6 @@ void init_heap(u32 n, Graph &graph) {
   add_heap_index = remove_heap_index = 0;
   add_score.resize(n + 1);
   removing_score.resize(n + 1);
-
-  auto vertices = graph.vertices();
-  for (auto &v : vertices) {
-    u32 score = 0;
-    for (auto &w : graph.get_neighbors(v)) {
-      score += graph.degree(w);
-    }
-    score += graph.degree(v);
-    insert({v, score}, HEAPTYPE::ADD);
-  }
+  std::fill(removing_score.begin(), removing_score.end(),
+            std::make_pair(UINT32_MAX, UINT32_MAX));
 }

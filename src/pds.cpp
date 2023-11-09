@@ -8,8 +8,6 @@
 #include <utility>
 #include <vector>
 
-#define TABU 2
-
 void NuPDS::init(std::ifstream &fin) {
   u32 n, m;
   fin >> n >> m;
@@ -38,34 +36,30 @@ void NuPDS::init(std::ifstream &fin) {
   }
 
   timestamp_ = 0;
+  tabu_size_ = 4;
+  alpha_ = 0.5;
 
   for (auto &v : graph_.vertices()) {
     unobserved_degree_[v] = graph_.degree(v);
     age[v] = 0;
-    cc[v] = true;
-    tabu[v] = 0;
+    cc_[v] = true;
+    tabu_[v] = 0;
   }
 
   // TODO
-  cutoff_ = 100000;
+  cutoff_ = 1000;
 
   init_heap(n, graph_);
 }
 
 void NuPDS::pre_process() {
+
+  add_heap_index = 0;
+  remove_heap_index = 0;
+
   for (auto &v : pre_selected_) {
     add_into_solution(v);
-  }
-  while (add_heap_index > 0) {
-    pop(HEAPTYPE::ADD);
-  }
-  while (remove_heap_index > 0) {
-    pop(HEAPTYPE::REMOVE);
-  }
-  for (auto &v : graph_.vertices()) {
-    if (!is_in_solution(v) && not_exculded(v)) {
-      insert({v, unobserved_degree_[v]}, HEAPTYPE::ADD);
-    }
+    tabu_[v] = 0;
   }
 }
 
@@ -83,7 +77,7 @@ void NuPDS::observe_one(u32 vertex, u32 origin, std::stack<u32> &stack_) {
     if (unobserved_degree_[vertex] == 1)
       stack_.push(vertex);
     for (auto w : graph_.get_neighbors(vertex)) {
-      cc[w] = true;
+      cc_[w] = true;
       unobserved_degree_[w] -= 1;
       if (unobserved_degree_[w] == 1 && is_observed(w))
         stack_.push(w);
@@ -97,9 +91,9 @@ void NuPDS::propagate(std::stack<u32> &stack_) {
     stack_.pop();
     if (is_observed(v) && unobserved_degree_[v] == 1) {
       for (auto w : graph_.get_neighbors(v)) {
-        cc[w] = true;
         if (!is_observed(w)) {
           observe_one(w, v, stack_);
+          break;
         }
       }
     }
@@ -118,15 +112,17 @@ bool NuPDS::is_in_solution(u32 v) {
 
 bool NuPDS::not_exculded(u32 v) { return excluded_.find(v) == excluded_.end(); }
 
+bool NuPDS::is_tabu(u32 v) { return tabu_[v] != 0; }
+
 u32 NuPDS::Ob(u32 v) {
   u32 score = 0;
   if (dependencies_.has_vertex(v)) {
-    while (dependencies_.in_degree(v) > 0) {
-      auto edge = *dependencies_.get_in_edges(v).begin();
-      dependencies_.remove_edge(edge, v);
-      dependencies_.remove_edge(v, edge);
+    auto neighbors = dependencies_.get_in_neighbors(v);
+    for (auto &u : neighbors) {
+      dependencies_.remove_edge(u, v);
     }
   }
+
   std::stack<u32> stack_;
   observe_one(v, v, stack_);
   for (auto w : graph_.get_neighbors(v)) {
@@ -183,22 +179,31 @@ u32 NuPDS::Ob(u32 v) {
 
 void NuPDS::add_into_solution(u32 v) {
   solution_.insert(v);
-  tabu[v] = TABU;
+
+  tabu_[v] = tabu_size_;
+
+  u32 score = dependencies_.vertex_nums();
+
   if (dependencies_.has_vertex(v)) {
-    while (dependencies_.in_degree(v) > 0) {
-      auto edge = *dependencies_.get_in_edges(v).begin();
-      dependencies_.remove_edge(edge, v);
-      dependencies_.remove_edge(v, edge);
+    auto neighbors = dependencies_.get_in_neighbors(v);
+    for (auto &u : neighbors) {
+      dependencies_.remove_edge(u, v);
     }
   }
   std::stack<u32> stack_;
   observe_one(v, v, stack_);
   for (auto w : graph_.get_neighbors(v)) {
-    cc[w] = true;
+    cc_[w] = true;
     observe_one(w, v, stack_);
   }
   propagate(stack_);
-  insert({v, dependencies_.out_degree(v)}, HEAPTYPE::REMOVE);
+  score = dependencies_.vertex_nums() - score;
+  insert(
+      {
+          v,
+          score,
+      },
+      HEAPTYPE::REMOVE);
 }
 
 void NuPDS::remove_from_solution(u32 v) {
@@ -206,9 +211,10 @@ void NuPDS::remove_from_solution(u32 v) {
   std::stack<u32> stack_;
   set<u32> enqueued;
 
+  tabu_[v] = tabu_size_;
+
   solution_.erase(v);
-  tabu[v] = TABU;
-  cc[v] = false;
+  cc_[v] = false;
   stack_.push(v);
   enqueued.insert(v);
 
@@ -219,9 +225,8 @@ void NuPDS::remove_from_solution(u32 v) {
     stack_.pop();
     std::optional<u32> observer;
     for (auto w : graph_.get_neighbors(v)) {
-      cc[w] = true;
+      cc_[w] = true;
       unobserved_degree_[w] += 1;
-      score += unobserved_degree_[w];
 
       if (!is_in_solution(w)) {
         // w is observed from v
@@ -232,8 +237,8 @@ void NuPDS::remove_from_solution(u32 v) {
           }
         } else if (is_observed(w)) {
           if (dependencies_.has_neighbors(w)) {
-            for (auto x : dependencies_.get_neighbors(w)) {
-              if (enqueued.find(w) == enqueued.end()) {
+            for (auto x : dependencies_.get_out_neighbors(w)) {
+              if (enqueued.find(x) == enqueued.end()) {
                 stack_.push(x);
                 enqueued.insert(x);
               }
@@ -251,9 +256,14 @@ void NuPDS::remove_from_solution(u32 v) {
       observe_one(v, observer.value(), propagating);
     }
   }
+
+  score = dependencies_.vertex_nums();
+
   propagate(propagating);
 
-  insert({v, unobserved_degree_[v] + score}, HEAPTYPE::ADD);
+  score = dependencies_.vertex_nums() - score;
+
+  insert({v, score}, HEAPTYPE::ADD);
 }
 
 u32 NuPDS::select_add_vertex() {
@@ -264,12 +274,12 @@ u32 NuPDS::select_add_vertex() {
       break;
     auto v = top(HEAPTYPE::ADD);
     pop(HEAPTYPE::ADD);
-    if (cc[v.first] && tabu[v.first] == 0 && not_exculded(v.first) &&
+    if (cc_[v.first] && !is_tabu(v.first) && not_exculded(v.first) &&
         !is_in_solution(v.first)) {
       ret = v.first;
       break;
-    } else {
-      tabu[v.first]--;
+    } else if (!is_in_solution(v.first) && not_exculded(v.first)) {
+      tabu_[v.first]--;
       candidates.push_back(v);
     }
   }
@@ -287,11 +297,11 @@ u32 NuPDS::select_remove_vertex() {
       break;
     auto v = top(HEAPTYPE::REMOVE);
     pop(HEAPTYPE::REMOVE);
-    if (cc[v.first] && tabu[v.first] == 0 && is_in_solution(v.first)) {
+    if (cc_[v.first] && !is_tabu(v.first) && is_in_solution(v.first)) {
       ret = v.first;
       break;
-    } else {
-      tabu[v.first]--;
+    } else if (is_in_solution(v.first)) {
+      tabu_[v.first]--;
       candidates.push_back(v);
     }
   }
@@ -301,15 +311,40 @@ u32 NuPDS::select_remove_vertex() {
   return ret;
 }
 
+void NuPDS::tabu_forget() {}
+
+void NuPDS::update_score() {}
+
 void NuPDS::greedy() {
 
-  while (dependencies_.vertex_nums() != graph_.vertex_nums()) {
+  while (1) {
+
     // auto v = top(HEAPTYPE::ADD);
     // pop(HEAPTYPE::ADD);
     // add_into_solution(v.first);
     // age[v.first] = timestamp_;
-    // tabu[v.first] = 0;
+    // tabu_.pop();
+    // in_tabu_.erase(v.first);
     // timestamp_++;
+
+    // // rebuild add heap
+    // if (all_observed()) {
+    //   std::vector<std::pair<u32, u32>> candidates;
+    //   for (auto &u : graph_.vertices()) {
+    //     if (!is_in_solution(u) && not_exculded(u)) {
+    //       u32 score = Ob(u);
+    //       candidates.push_back({u, score});
+    //     }
+    //   }
+    //   add_heap_index = 0;
+    //   for (auto &u : candidates) {
+    //     if (!is_in_solution(u.first) && not_exculded(u.first)) {
+    //       insert({u.first, u.second}, HEAPTYPE::ADD);
+    //     }
+    //   }
+    //   break;
+    // }
+
     std::vector<std::pair<u32, u32>> candidates;
     for (auto &v : graph_.vertices()) {
       if (!is_in_solution(v) && not_exculded(v)) {
@@ -320,34 +355,71 @@ void NuPDS::greedy() {
     std::sort(candidates.begin(), candidates.end(),
               [](auto &a, auto &b) { return a.second > b.second; });
     add_into_solution(candidates[0].first);
+    tabu_[candidates[0].first] = 0;
+    age[candidates[0].first] = timestamp_;
+    timestamp_++;
+
+    if (timestamp_ == 1) {
+      for (auto &v : candidates) {
+        base_score_[v.first] = v.second;
+      }
+    }
+
+    // rebuild add heap
+    if (all_observed()) {
+      add_heap_index = 0;
+      for (auto &v : candidates) {
+        if (!is_in_solution(v.first) && not_exculded(v.first)) {
+          insert({v.first, v.second}, HEAPTYPE::ADD);
+        }
+      }
+      break;
+    }
   }
 }
 
 void NuPDS::solve() {
-  greedy();
-  best_solution_ = solution_;
-  while (timestamp_ < cutoff_ && solution_.size() > 1) {
+
+  if (!all_observed()) {
+    greedy();
+  }
+
+  if (solution_.size() == 1) {
+    best_solution_ = solution_;
+    return;
+  }
+
+  for (auto &[k, v] : unobserved_degree_) {
+    v = 0;
+  }
+
+  while (timestamp_ < cutoff_) {
     timestamp_++;
-    if (dependencies_.vertex_nums() == graph_.vertex_nums()) {
+    if (all_observed()) {
       best_solution_ = solution_;
       auto v = select_remove_vertex();
       if (v != INT32_MAX) {
         remove_from_solution(v);
         age[v] = timestamp_;
+      } else {
+        tabu_forget();
       }
       continue;
     }
 
     auto v_remove = select_remove_vertex();
-    if (v_remove == INT32_MAX) {
+    auto v_add = select_add_vertex();
+    if (v_remove == INT32_MAX || v_add == INT32_MAX) {
+      tabu_forget();
       continue;
     }
-    auto v_add = select_add_vertex();
 
     remove_from_solution(v_remove);
     age[v_remove] = timestamp_;
     add_into_solution(v_add);
     age[v_add] = timestamp_;
+
+    update_score();
   }
 }
 

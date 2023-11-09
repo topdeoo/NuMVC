@@ -56,6 +56,8 @@ public:
 
   // function of neighbors
   const set<u32> &get_neighbors(u32 v);
+  const set<u32> &get_in_neighbors(u32 v);
+  const set<u32> &get_out_neighbors(u32 v);
   bool has_neighbors(u32 v) const;
 };
 

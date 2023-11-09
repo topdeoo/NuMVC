@@ -1,5 +1,6 @@
 #pragma once
 
+#include <queue>
 #ifndef PDS_HPP
 #define PDS_HPP
 #include "basic.hpp"
@@ -22,16 +23,19 @@ public:
 private:
   Graph graph_;
   Graph dependencies_;
-  set<u32> observed_;
   set<u32> solution_;
   map<u32, u32> unobserved_degree_;
-  map<u32, bool> cc;
-  map<u32, u32> tabu;
+  map<u32, u32> base_score_;
+  map<u32, bool> cc_;
+  map<u32, u32> tabu_;
+  u32 tabu_size_;
   set<u32> best_solution_;
   u32 timestamp_;
   u32 cutoff_;
   set<u32> pre_selected_; // already in solution
   set<u32> excluded_;     // will nerver in solution
+  double alpha_;
+  double gamma_;
 
 public:
   void solve();
@@ -42,12 +46,16 @@ public:
   bool is_observed(u32 v);
   bool is_in_solution(u32 v);
   bool not_exculded(u32 v);
+  bool is_tabu(u32 v);
   void add_into_solution(u32 v);
   void remove_from_solution(u32 v);
   u32 select_add_vertex();
   u32 select_remove_vertex();
   bool all_observed();
   u32 Ob(u32 v);
+  void tabu_forget();
+  void update_score();
+  void forget_score();
 
 public:
   const set<u32> &get_solution() const;

@@ -102,3 +102,17 @@ const set<u32> &Graph::get_neighbors(u32 v) {
   }
   return neighbors_.at(v);
 }
+
+const set<u32> &Graph::get_in_neighbors(u32 v) {
+  if (in_neighbors_.find(v) == in_neighbors_.end()) {
+    in_neighbors_[v] = set<u32>();
+  }
+  return in_neighbors_.at(v);
+}
+
+const set<u32> &Graph::get_out_neighbors(u32 v) {
+  if (out_neighbors_.find(v) == out_neighbors_.end()) {
+    out_neighbors_[v] = set<u32>();
+  }
+  return out_neighbors_.at(v);
+}
