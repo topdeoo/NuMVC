@@ -116,3 +116,12 @@ const set<u32> &Graph::get_out_neighbors(u32 v) {
   }
   return out_neighbors_.at(v);
 }
+
+void Graph::clear() {
+  vertices_.clear();
+  neighbors_.clear();
+  in_neighbors_.clear();
+  out_neighbors_.clear();
+  n_ = 0;
+  m_ = 0;
+}

@@ -2,7 +2,10 @@
 #include "basic.hpp"
 #include "heap.h"
 #include <algorithm>
+#include <cstddef>
 #include <cstdint>
+#include <cstdlib>
+#include <ctime>
 #include <optional>
 #include <stack>
 #include <utility>
@@ -47,7 +50,7 @@ void NuPDS::init(std::ifstream &fin) {
   }
 
   // TODO
-  cutoff_ = 1000;
+  cutoff_ = 100;
 
   init_heap(n, graph_);
 }
@@ -56,6 +59,10 @@ void NuPDS::pre_process() {
 
   add_heap_index = 0;
   remove_heap_index = 0;
+  timestamp_ = 0;
+  dependencies_.clear();
+  best_solution_.clear();
+  solution_.clear();
 
   for (auto &v : pre_selected_) {
     add_into_solution(v);
@@ -261,7 +268,13 @@ void NuPDS::remove_from_solution(u32 v) {
 
   propagate(propagating);
 
-  score = dependencies_.vertex_nums() - score;
+  score = score - dependencies_.vertex_nums();
+
+  if (!is_observed(v)) {
+    score += unobserved_degree_[v] + graph_.degree(v);
+  }
+
+  // auto alpha = random_alpha();
 
   insert({v, score}, HEAPTYPE::ADD);
 }
@@ -319,38 +332,15 @@ void NuPDS::greedy() {
 
   while (1) {
 
-    // auto v = top(HEAPTYPE::ADD);
-    // pop(HEAPTYPE::ADD);
-    // add_into_solution(v.first);
-    // age[v.first] = timestamp_;
-    // tabu_.pop();
-    // in_tabu_.erase(v.first);
-    // timestamp_++;
-
-    // // rebuild add heap
-    // if (all_observed()) {
-    //   std::vector<std::pair<u32, u32>> candidates;
-    //   for (auto &u : graph_.vertices()) {
-    //     if (!is_in_solution(u) && not_exculded(u)) {
-    //       u32 score = Ob(u);
-    //       candidates.push_back({u, score});
-    //     }
-    //   }
-    //   add_heap_index = 0;
-    //   for (auto &u : candidates) {
-    //     if (!is_in_solution(u.first) && not_exculded(u.first)) {
-    //       insert({u.first, u.second}, HEAPTYPE::ADD);
-    //     }
-    //   }
-    //   break;
-    // }
-
     std::vector<std::pair<u32, u32>> candidates;
     for (auto &v : graph_.vertices()) {
       if (!is_in_solution(v) && not_exculded(v)) {
         u32 score = Ob(v);
         candidates.push_back({v, score});
       }
+    }
+    if (candidates.empty()) {
+      break;
     }
     std::sort(candidates.begin(), candidates.end(),
               [](auto &a, auto &b) { return a.second > b.second; });
@@ -370,7 +360,13 @@ void NuPDS::greedy() {
       add_heap_index = 0;
       for (auto &v : candidates) {
         if (!is_in_solution(v.first) && not_exculded(v.first)) {
-          insert({v.first, v.second}, HEAPTYPE::ADD);
+          if (is_observed(v.first)) {
+            insert({v.first, v.second}, HEAPTYPE::ADD);
+          } else {
+            insert({v.first, v.second + graph_.degree(v.first) +
+                                 unobserved_degree_[v.first]},
+                   HEAPTYPE::ADD);
+          }
         }
       }
       break;
@@ -395,15 +391,15 @@ void NuPDS::solve() {
 
   while (timestamp_ < cutoff_) {
     timestamp_++;
-    if (all_observed()) {
+    if (all_observed() && solution_.size() > 1) {
       best_solution_ = solution_;
-      auto v = select_remove_vertex();
-      if (v != INT32_MAX) {
-        remove_from_solution(v);
-        age[v] = timestamp_;
-      } else {
-        tabu_forget();
-      }
+      // should random select a vertex to remove
+      srand(time(NULL));
+      auto offset = random() % solution_.size();
+      auto v = *std::next(solution_.begin(), offset);
+      remove_from_solution(v);
+      age[v] = timestamp_;
+
       continue;
     }
 
@@ -426,3 +422,8 @@ void NuPDS::solve() {
 const set<u32> &NuPDS::get_solution() const { return solution_; }
 
 const set<u32> &NuPDS::get_best_solution() const { return best_solution_; }
+
+void NuPDS::update_pre_selected() {
+  pre_selected_.clear();
+  pre_selected_.insert(best_solution_.begin(), best_solution_.end());
+}

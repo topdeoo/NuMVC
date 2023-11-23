@@ -59,6 +59,8 @@ public:
   const set<u32> &get_in_neighbors(u32 v);
   const set<u32> &get_out_neighbors(u32 v);
   bool has_neighbors(u32 v) const;
+
+  void clear();
 };
 
 #endif // __GRAPH_HPP__

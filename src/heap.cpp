@@ -22,6 +22,12 @@ static bool random_x() {
   return gen();
 }
 
+double random_alpha() {
+  static auto gen = std::bind(std::uniform_real_distribution<>(0, 1),
+                              std::default_random_engine(rd()));
+  return gen();
+}
+
 u32 parient(u32 index) { return index / 2; }
 u32 left_child(u32 index) { return 2 * index; }
 u32 right_child(u32 index) { return 2 * index + 1; }
@@ -144,89 +150,6 @@ static void down(u32 index, HEAPTYPE which) {
     }
   }
 }
-
-// static void down(u32 index, HEAPTYPE which) {
-//   if (which == HEAPTYPE::ADD) {
-//     auto temp = index;
-
-//     if (left_child(index) <= add_heap_index) {
-//       if (add_score[temp].second < add_score[left_child(index)].second)
-//         temp = left_child(index);
-//       else if (add_score[temp].second == add_score[left_child(index)].second
-//       &&
-//                age[add_score[temp].first] >
-//                    age[add_score[left_child(index)].first])
-//         temp = left_child(index);
-//       else if (add_score[temp].second == add_score[left_child(index)].second
-//       &&
-//                age[add_score[temp].first] ==
-//                    age[add_score[left_child(index)].first] &&
-//                random_x())
-//         temp = left_child(index);
-//     }
-
-//     if (right_child(index) <= add_heap_index) {
-//       if (add_score[temp].second < add_score[right_child(index)].second)
-//         temp = right_child(index);
-//       else if (add_score[temp].second == add_score[right_child(index)].second
-//       &&
-//                age[add_score[temp].first] >
-//                    age[add_score[right_child(index)].first])
-//         temp = right_child(index);
-//       else if (add_score[temp].second == add_score[right_child(index)].second
-//       &&
-//                age[add_score[temp].first] ==
-//                    age[add_score[right_child(index)].first] &&
-//                random_x())
-//         temp = right_child(index);
-//     }
-
-//     if (temp != index) {
-//       std::swap(add_score[temp], add_score[index]);
-//       down(temp, which);
-//     }
-//   } else {
-//     auto temp = index;
-//     if (left_child(index) <= remove_heap_index) {
-//       if (removing_score[temp].second >
-//           removing_score[left_child(index)].second)
-//         temp = left_child(index);
-//       else if (removing_score[temp].second ==
-//                    removing_score[left_child(index)].second &&
-//                age[removing_score[temp].first] >
-//                    age[removing_score[left_child(index)].first])
-//         temp = left_child(index);
-//       else if (removing_score[temp].second ==
-//                    removing_score[left_child(index)].second &&
-//                age[removing_score[temp].first] ==
-//                    age[removing_score[left_child(index)].first] &&
-//                random_x())
-//         temp = left_child(index);
-//     }
-
-//     if (right_child(index) <= add_heap_index) {
-//       if (removing_score[temp].second >
-//           removing_score[right_child(index)].second)
-//         temp = right_child(index);
-//       else if (removing_score[temp].second ==
-//                    removing_score[right_child(index)].second &&
-//                age[removing_score[temp].first] >
-//                    age[removing_score[right_child(index)].first])
-//         temp = right_child(index);
-//       else if (removing_score[temp].second ==
-//                    removing_score[right_child(index)].second &&
-//                age[removing_score[temp].first] ==
-//                    age[removing_score[right_child(index)].first] &&
-//                random_x())
-//         temp = right_child(index);
-//     }
-
-//     if (temp != index) {
-//       std::swap(removing_score[temp], removing_score[index]);
-//       down(temp, which);
-//     }
-//   }
-// }
 
 void insert(const std::pair<u32, u32> &entry, HEAPTYPE which) {
   if (which == HEAPTYPE::ADD) {

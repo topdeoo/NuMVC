@@ -57,6 +57,8 @@ public:
   void update_score();
   void forget_score();
 
+  void update_pre_selected();
+
 public:
   const set<u32> &get_solution() const;
   const set<u32> &get_best_solution() const;

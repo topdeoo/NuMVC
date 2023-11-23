@@ -22,11 +22,13 @@ int main(int argc, const char *argv[]) {
 
   pds.init(fin);
 
-  pds.pre_process();
-
   auto t0 = now();
 
-  pds.solve();
+  for (int i = 0; i <= 100; i++) {
+    pds.update_pre_selected();
+    pds.pre_process();
+    pds.solve();
+  }
 
   auto t1 = now();
 

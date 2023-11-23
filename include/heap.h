@@ -23,4 +23,6 @@ std::pair<u32, u32> &top(HEAPTYPE which);
 void pop(HEAPTYPE which);
 void init_heap(u32 n, Graph &graph);
 
+double random_alpha();
+
 #endif // __HEAP_H__
