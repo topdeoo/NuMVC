@@ -220,6 +220,7 @@ void NuPDS::remove_from_solution(u32 v) {
   tabu_[v] = tabu_size_;
 
   solution_.erase(v);
+  candidate_solution_set_.erase(v);
   cc_[v] = false;
   stack_.push(v);
   enqueued.insert(v);
@@ -467,6 +468,7 @@ void NuPDS::solve() {
     age[v_remove] = timestamp_;
     add_into_solution(v_add);
     age[v_add] = timestamp_;
+    candidate_solution_set_.insert(v_add);
 
     update_score();
   }
