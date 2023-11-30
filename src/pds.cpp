@@ -2,7 +2,6 @@
 #include "basic.hpp"
 #include "graph.hpp"
 #include "heap.h"
-#include <algorithm>
 #include <cstddef>
 #include <cstdint>
 #include <cstdlib>
@@ -406,9 +405,18 @@ void NuPDS::solve() {
   update_pre_selected();
   pre_process();
 
+  for (auto &v : init_solution_) {
+    add_into_solution(v);
+    tabu_[v] = 0;
+    age[v] = timestamp_;
+  }
+
   // step1: remove all unnecessary vertices
   auto candidates = solution_;
   for (auto &v : candidates) {
+    if (pre_selected_.find(v) != pre_selected_.end()) {
+      continue;
+    }
     remove_from_solution(v);
     if (!all_observed()) {
       add_into_solution(v);
@@ -423,8 +431,6 @@ void NuPDS::solve() {
       insert({v, base_score_[v]}, HEAPTYPE::ADD);
     }
   }
-
-  best_solution_ = solution_;
 
   // setp2: local search
 
@@ -463,8 +469,8 @@ const set<u32> &NuPDS::get_solution() const { return solution_; }
 const set<u32> &NuPDS::get_best_solution() const { return best_solution_; }
 
 void NuPDS::update_pre_selected() {
-  pre_selected_.clear();
-  pre_selected_.insert(best_solution_.begin(), best_solution_.end());
+  init_solution_.clear();
+  init_solution_.insert(best_solution_.begin(), best_solution_.end());
   dependencies_ = Graph();
   best_solution_.clear();
   solution_.clear();

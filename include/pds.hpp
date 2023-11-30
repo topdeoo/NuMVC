@@ -33,7 +33,8 @@ private:
   u32 timestamp_;
   u32 cutoff_;
   set<u32> pre_selected_; // already in solution
-  set<u32> excluded_;     // will nerver in solution
+  set<u32> init_solution_;
+  set<u32> excluded_; // will nerver in solution
   double alpha_;
   double gamma_;
 
