@@ -1,6 +1,6 @@
 #include "basic.hpp"
 #include "graph.hpp"
-#include "pds.hpp"
+#include <fstream>
 #include <iostream>
 #include <stack>
 
@@ -49,6 +49,9 @@ int main(int argc, const char *argv[]) {
   std::ifstream fin(argv[1]);
   std::ifstream sol(argv[2]);
 
+  std::string t;
+  fin >> t;
+
   Graph g;
   u32 n, m;
   fin >> n >> m;
@@ -60,6 +63,9 @@ int main(int argc, const char *argv[]) {
   }
 
   set<u32> solution;
+
+  sol >> t;
+  sol >> t;
 
   u32 k;
   sol >> k;

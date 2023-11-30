@@ -59,13 +59,13 @@ void NuPDS::init(std::ifstream &fin) {
 void NuPDS::pre_process() {
 
   add_heap_index = 0;
-  remove_heap_index = 0;
   timestamp_ = 0;
 
   for (auto &v : pre_selected_) {
     add_into_solution(v);
     tabu_[v] = 0;
   }
+  remove_heap_index = 0;
 }
 
 void NuPDS::observe(u32 vertex, u32 origin) {
@@ -209,6 +209,7 @@ void NuPDS::add_into_solution(u32 v) {
           score,
       },
       HEAPTYPE::REMOVE);
+  remove_score_[v] = score;
 }
 
 void NuPDS::remove_from_solution(u32 v) {
@@ -308,10 +309,12 @@ u32 NuPDS::select_remove_vertex() {
       break;
     auto v = top(HEAPTYPE::REMOVE);
     pop(HEAPTYPE::REMOVE);
-    if (cc_[v.first] && !is_tabu(v.first) && is_in_solution(v.first)) {
+    if (cc_[v.first] && !is_tabu(v.first) && is_in_solution(v.first) &&
+        pre_selected_.find(v.first) == pre_selected_.end()) {
       ret = v.first;
       break;
-    } else if (is_in_solution(v.first)) {
+    } else if (is_in_solution(v.first) &&
+               pre_selected_.find(v.first) == pre_selected_.end()) {
       tabu_[v.first]--;
       candidates.push_back(v);
     }
@@ -401,22 +404,20 @@ void NuPDS::solve() {
     v = 0;
   }
 
-  best_solution_ = solution_;
   update_pre_selected();
   pre_process();
 
-  for (auto &v : init_solution_) {
+  // TODO: can optimize here by merge two procedure
+
+  for (auto &v : candidate_solution_set_) {
     add_into_solution(v);
     tabu_[v] = 0;
     age[v] = timestamp_;
   }
 
   // step1: remove all unnecessary vertices
-  auto candidates = solution_;
+  auto candidates = candidate_solution_set_;
   for (auto &v : candidates) {
-    if (pre_selected_.find(v) != pre_selected_.end()) {
-      continue;
-    }
     remove_from_solution(v);
     if (!all_observed()) {
       add_into_solution(v);
@@ -432,16 +433,23 @@ void NuPDS::solve() {
     }
   }
 
-  // setp2: local search
+  remove_heap_index = 0;
+  for (auto &v : candidate_solution_set_) {
+    insert({v, remove_score_[v]}, HEAPTYPE::REMOVE);
+  }
 
-  while (timestamp_ < cutoff_) {
+  best_solution_ = solution_;
+
+  // setp2: local search
+  while (timestamp_ < cutoff_ && remove_heap_index > 0 && add_heap_index > 0 &&
+         candidate_solution_set_.size() > 1) {
     timestamp_++;
     if (all_observed() && solution_.size() > 1) {
       best_solution_ = solution_;
       // should random select a vertex to remove
       srand(time(NULL));
-      auto offset = random() % solution_.size();
-      auto v = *std::next(solution_.begin(), offset);
+      auto offset = random() % candidate_solution_set_.size();
+      auto v = *std::next(candidate_solution_set_.begin(), offset);
       remove_from_solution(v);
       age[v] = timestamp_;
 
@@ -469,8 +477,12 @@ const set<u32> &NuPDS::get_solution() const { return solution_; }
 const set<u32> &NuPDS::get_best_solution() const { return best_solution_; }
 
 void NuPDS::update_pre_selected() {
-  init_solution_.clear();
-  init_solution_.insert(best_solution_.begin(), best_solution_.end());
+  candidate_solution_set_.clear();
+  for (auto &v : solution_) {
+    if (pre_selected_.find(v) == pre_selected_.end()) {
+      candidate_solution_set_.insert(v);
+    }
+  }
   dependencies_ = Graph();
   best_solution_.clear();
   solution_.clear();

@@ -26,6 +26,7 @@ private:
   set<u32> solution_;
   map<u32, u32> unobserved_degree_;
   map<u32, u32> base_score_;
+  map<u32, u32> remove_score_;
   map<u32, bool> cc_;
   map<u32, u32> tabu_;
   u32 tabu_size_;
@@ -33,7 +34,7 @@ private:
   u32 timestamp_;
   u32 cutoff_;
   set<u32> pre_selected_; // already in solution
-  set<u32> init_solution_;
+  set<u32> candidate_solution_set_;
   set<u32> excluded_; // will nerver in solution
   double alpha_;
   double gamma_;
