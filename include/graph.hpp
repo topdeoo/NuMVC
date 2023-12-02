@@ -18,10 +18,9 @@ public:
     m_ = graph.m_;
     vertices_ = graph.vertices_;
     neighbors_ = graph.neighbors_;
+    in_neighbors_ = graph.in_neighbors_;
+    out_neighbors_ = graph.out_neighbors_;
   };
-  Graph(Graph &&) = default;
-  Graph &operator=(Graph &&) = default;
-  Graph &operator=(const Graph &) = default;
 
 private:
   u32 n_, m_;         // n: number of vertices, m: number of edges

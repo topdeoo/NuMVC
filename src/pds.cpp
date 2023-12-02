@@ -2,6 +2,7 @@
 #include "basic.hpp"
 #include "graph.hpp"
 #include "heap.h"
+#include <algorithm>
 #include <cstddef>
 #include <cstdint>
 #include <cstdlib>
@@ -419,12 +420,13 @@ void NuPDS::solve() {
   // step1: remove all unnecessary vertices
   auto candidates = candidate_solution_set_;
   for (auto &v : candidates) {
-    auto copy = dependencies_;
+    auto copy_graph = dependencies_;
+    auto unobserved = unobserved_degree_;
     remove_from_solution(v);
     if (!all_observed()) {
-      std::fill(unobserved_degree_.begin(), unobserved_degree_.end(), 0);
       solution_.insert(v);
-      dependencies_ = copy;
+      dependencies_ = std::move(copy_graph);
+      unobserved_degree_ = std::move(unobserved);
     } else {
       best_solution_.erase(v);
       candidate_solution_set_.erase(v);
