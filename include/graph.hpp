@@ -21,6 +21,7 @@ public:
   };
   Graph(Graph &&) = default;
   Graph &operator=(Graph &&) = default;
+  Graph &operator=(const Graph &) = default;
 
 private:
   u32 n_, m_;         // n: number of vertices, m: number of edges

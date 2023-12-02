@@ -81,7 +81,7 @@ void NuPDS::observe_one(u32 vertex, u32 origin, std::stack<u32> &stack_) {
       dependencies_.add_edge(origin, vertex);
     if (unobserved_degree_[vertex] == 1)
       stack_.push(vertex);
-    for (auto w : graph_.get_neighbors(vertex)) {
+    for (auto w : graph_.get_out_neighbors(vertex)) {
       cc_[w] = true;
       unobserved_degree_[w] -= 1;
       if (unobserved_degree_[w] == 1 && is_observed(w))
@@ -419,11 +419,15 @@ void NuPDS::solve() {
   // step1: remove all unnecessary vertices
   auto candidates = candidate_solution_set_;
   for (auto &v : candidates) {
+    auto copy = dependencies_;
     remove_from_solution(v);
     if (!all_observed()) {
-      add_into_solution(v);
+      std::fill(unobserved_degree_.begin(), unobserved_degree_.end(), 0);
+      solution_.insert(v);
+      dependencies_ = copy;
     } else {
       best_solution_.erase(v);
+      candidate_solution_set_.erase(v);
     }
   }
 
@@ -441,7 +445,7 @@ void NuPDS::solve() {
 
   best_solution_ = solution_;
 
-  // setp2: local search
+  // step2: local search
   while (timestamp_ < cutoff_ && remove_heap_index > 0 && add_heap_index > 0 &&
          candidate_solution_set_.size() > 1) {
     timestamp_++;
