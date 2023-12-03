@@ -4,18 +4,29 @@
 #define PDS_HPP
 #include "basic.hpp"
 #include "graph.hpp"
+#include "heap.h"
 #include <chrono>
 #include <cstdint>
 #include <fstream>
 #include <stack>
 #include <vector>
+
 class NuPDS {
 public:
   NuPDS() = default;
   ~NuPDS() = default;
   NuPDS(const NuPDS &) = default;
   NuPDS(NuPDS &&) = default;
-  NuPDS(const Graph &graph) : graph_(graph){};
+  NuPDS(const Graph &graph) : graph_(graph) {
+    for (auto &v : graph_.vertices()) {
+      unobserved_degree_[v] = graph_.degree(v);
+      base_score_[v] = graph_.degree(v);
+      age[v] = 0;
+      cc_[v] = true;
+      tabu_[v] = 0;
+    }
+    init_heap(graph.vertices().size(), graph_);
+  };
   void init(std::ifstream &fin);
   void pre_process();
 
