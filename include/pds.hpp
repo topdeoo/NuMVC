@@ -5,11 +5,8 @@
 #include "basic.hpp"
 #include "graph.hpp"
 #include "heap.h"
-#include <chrono>
-#include <cstdint>
 #include <fstream>
 #include <stack>
-#include <vector>
 
 class NuPDS {
 public:
@@ -45,7 +42,8 @@ private:
   u32 cutoff_;
   set<u32> pre_selected_; // already in solution
   set<u32> candidate_solution_set_;
-  set<u32> excluded_; // will nerver in solution
+  set<u32> excluded_;        // will nerver in solution
+  set<u32> non_propagating_; // won't do propagation
   double alpha_;
   double gamma_;
 
@@ -68,10 +66,12 @@ public:
   void tabu_forget();
   void update_score();
   void forget_score();
+  inline bool can_propagate(u32 v) { return non_propagating_.count(v) == 0; }
 
   void update_pre_selected();
 
 public:
+  const set<u32> &get_observed_vertex() const;
   const set<u32> &get_solution() const;
   const set<u32> &get_best_solution() const;
 };
