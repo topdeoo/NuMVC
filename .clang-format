@@ -5,4 +5,3 @@ IndentWidth: 4
 AccessModifierOffset: -4
 ColumnLimit: 104
 SpacesInParentheses: true
-...
