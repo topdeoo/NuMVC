@@ -7,7 +7,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Ofast -Wall -Werror")
 
 include_directories(include)
 
-add_library(pds_shared SHARED src/heap.cpp src/graph.cpp src/pds.cpp)
+add_library(pds_shared SHARED src/graph.cpp src/fss.cpp)
 
 add_executable(main src/main.cpp)
 add_executable(checker src/checker.cpp)

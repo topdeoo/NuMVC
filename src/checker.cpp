@@ -1,6 +1,6 @@
 #include "basic.hpp"
+#include "fss.hpp"
 #include "graph.hpp"
-#include "pds.hpp"
 #include <fstream>
 #include <iostream>
 #include <stack>
@@ -24,7 +24,7 @@ int main(int argc, const char *argv[]) {
     g.add_edge(v, u);
   }
 
-  NuPDS pds(g);
+  FSS fss(g);
 
   sol >> t;
 
@@ -33,12 +33,12 @@ int main(int argc, const char *argv[]) {
   for (u32 i = 0; i < k; i++) {
     u32 v;
     sol >> v;
-    pds.add_into_solution(v);
+    fss.add_into_solution(v);
   }
 
   std::cout << argv[2] << " ";
 
-  if (pds.all_observed()) {
+  if (fss.all_observed()) {
     std::cout << "OK" << std::endl;
   } else {
     std::cout << "WA" << std::endl;

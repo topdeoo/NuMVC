@@ -1,4 +1,4 @@
-#include "pds.hpp"
+#include "fss.hpp"
 #include <chrono>
 #include <fstream>
 #include <iostream>
@@ -15,17 +15,16 @@ int main(int argc, const char *argv[]) {
   std::ifstream fin(argv[1]);
   std::ofstream fout(argv[2]);
 
-  NuPDS pds;
+  FSS fss;
 
   std::string t;
   fin >> t;
 
-  pds.init(fin);
-  pds.pre_process();
+  fss.init(fin);
 
   auto t0 = now();
 
-  pds.solve();
+  fss.search();
 
   auto t1 = now();
 
@@ -34,7 +33,7 @@ int main(int argc, const char *argv[]) {
   fout << std::chrono::duration_cast<std::chrono::microseconds>(t1 - t0).count()
        << "us" << std::endl;
 
-  auto solution = pds.get_best_solution();
+  auto solution = fss.get_best_solution();
   fout << solution.size() << std::endl;
   for (auto &v : solution) {
     fout << v << " ";
