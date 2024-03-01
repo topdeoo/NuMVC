@@ -41,7 +41,6 @@ public:
     factor_ = 1;
     population_size_ = 100;
     k_ = 10;
-    stagnation_ = 100;
     N_ = 101;
   };
 
@@ -51,13 +50,13 @@ public:
     factor_ = 1;
     population_size_ = 100;
     k_ = 10;
-    stagnation_ = 100;
     N_ = 101;
   };
 
 public:
   void search();
   void grasp();
+  void clear();
   void init(std::ifstream &fin);
   set<u32> get_best_solution();
   void fix_search();

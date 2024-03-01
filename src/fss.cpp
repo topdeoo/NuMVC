@@ -1,11 +1,14 @@
 #include "fss.hpp"
 #include "basic.hpp"
+#include <chrono>
 #include <fstream>
 #include <functional>
 #include <optional>
 #include <random>
 #include <utility>
 #include <vector>
+
+extern auto now() { return std::chrono::high_resolution_clock::now(); }
 
 static std::random_device rd{"hw"};
 static double alpha_() {
@@ -136,7 +139,9 @@ void FSS::Ob(std::vector<std::pair<u32, double>> &candidate, u32 v) {
   auto score =
       (dependencies_.vertices().size() - prev.vertices().size()) * alpha_();
   candidate.push_back({v, score});
+
   dependencies_ = prev;
+  solution_.erase(v);
 }
 
 void FSS::greedy() {
@@ -156,7 +161,8 @@ void FSS::greedy() {
 }
 
 void FSS::local_search() {
-  for (auto &v : solution_) {
+  auto candidate = solution_;
+  for (auto &v : candidate) {
     auto prev = dependencies_;
     remove_from_solution(v);
     if (!all_observed()) {
@@ -201,15 +207,26 @@ void FSS::grasp() {
   }
 }
 
+void FSS::clear() {
+  solution_.clear();
+  dependencies_.clear();
+  unobserved_degree_.clear();
+  for (auto &v : graph_.vertices()) {
+    unobserved_degree_[v] = graph_.degree(v);
+  }
+}
+
 void FSS::search() {
+
+  auto start = now();
+
   next_size();
   // generate `population_size_ = max(n_, m_)` best solutions
   for (auto i = 0; i < N_; i++) {
     if (i > population_size_) {
       break;
     }
-    best_solution_.clear();
-    solution_.clear();
+    clear();
     grasp();
     if (best_solution_.size() > worst_solution_.second ||
         worst_solution_.second == 0) {
@@ -221,7 +238,12 @@ void FSS::search() {
 
   u32 not_improve = 0, prev_size = best_solution_.size();
 
-  while (timestarmp_ < cutoff_) {
+  while (timestarmp_ < cutoff_ && prev_size > 1) {
+    auto _now = now();
+    if (std::chrono::duration_cast<std::chrono::seconds>(_now - start).count() >
+        1800) {
+      return;
+    }
     // set `S_kn` to be the best `k` solutions in `P_n`
     skn_.clear();
     set<u32> skn;
@@ -264,7 +286,8 @@ void FSS::search() {
 }
 
 void FSS::init(std::ifstream &fin) {
-  fin >> cutoff_;
+  cutoff_ = 1000;
+  stagnation_ = 10;
 
   u32 n, m;
   fin >> n >> m;

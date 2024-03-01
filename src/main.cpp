@@ -17,9 +17,6 @@ int main(int argc, const char *argv[]) {
 
   FSS fss;
 
-  std::string t;
-  fin >> t;
-
   fss.init(fin);
 
   auto t0 = now();
@@ -27,8 +24,6 @@ int main(int argc, const char *argv[]) {
   fss.search();
 
   auto t1 = now();
-
-  fout << t << std::endl;
 
   fout << std::chrono::duration_cast<std::chrono::microseconds>(t1 - t0).count()
        << "us" << std::endl;
