@@ -7,4 +7,6 @@ build/
 
 .clangd
 
+test/
+
 *.sol
