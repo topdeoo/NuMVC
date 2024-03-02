@@ -8,3 +8,5 @@ build/
 .clangd
 
 *.sol
+
+test/

@@ -133,30 +133,29 @@ inline bool FSS::is_observed(u32 v) { return dependencies_.has_vertex(v); }
 
 inline bool FSS::is_in_solution(u32 v) { return solution_.count(v) > 0; }
 
-void FSS::Ob(std::vector<std::pair<u32, double>> &candidate, u32 v) {
-  auto prev = dependencies_;
-  add_into_solution(v);
-  auto score =
-      (dependencies_.vertices().size() - prev.vertices().size()) * alpha_();
-  candidate.push_back({v, score});
-
-  dependencies_ = prev;
-  solution_.erase(v);
-}
-
 void FSS::greedy() {
   while (!all_observed()) {
     std::vector<std::pair<u32, double>> candidate;
     for (auto &v : graph_.vertices()) {
       if (!is_in_solution(v)) {
-        Ob(candidate, v);
+        auto prev_dependencies = dependencies_;
+        add_into_solution(v);
+        auto score = dependencies_.vertices().size() -
+                     prev_dependencies.vertices().size();
+        candidate.push_back({v, score * alpha_()});
+        dependencies_ = prev_dependencies;
+        solution_.erase(v);
       }
     }
     sort(candidate.begin(), candidate.end(),
          [](const std::pair<u32, u32> &a, const std::pair<u32, u32> &b) {
            return a.second > b.second;
          });
-    add_into_solution(candidate[0].first);
+    if (!candidate.empty()) {
+      add_into_solution(candidate[0].first);
+    } else {
+      break;
+    }
   }
 }
 
@@ -201,6 +200,9 @@ void FSS::fix_search() {
 
 void FSS::grasp() {
   greedy();
+  if (!all_observed()) {
+    return;
+  }
   local_search();
   if (solution_.size() < best_solution_.size() || best_solution_.empty()) {
     best_solution_ = solution_;

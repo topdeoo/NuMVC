@@ -62,7 +62,7 @@ public:
   void fix_search();
   void greedy();
   void local_search();
-  void Ob(std::vector<std::pair<u32, double>> &candidate, u32 v);
+  // void Ob(std::vector<std::pair<u32, double>> &candidate, u32 v);
   void observe(u32 vertex, u32 origin);
   void observe_one(u32 vertex, u32 origin, std::stack<u32> &stack_);
   void propagate(std::stack<u32> &stack_);
