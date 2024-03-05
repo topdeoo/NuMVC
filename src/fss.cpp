@@ -218,11 +218,7 @@ void FSS::clear() {
   }
 }
 
-void FSS::search() {
-
-  auto start = now();
-
-  next_size();
+void FSS::pre_processing() {
   // generate `population_size_ = max(n_, m_)` best solutions
   for (auto i = 0; i < N_; i++) {
     if (i > population_size_) {
@@ -237,13 +233,21 @@ void FSS::search() {
     }
     population_.push_back(best_solution_);
   }
+}
+
+void FSS::search() {
+
+  auto start = now();
+
+  next_size();
 
   u32 not_improve = 0, prev_size = best_solution_.size();
 
-  while (timestarmp_ < cutoff_ && prev_size > 1) {
+  while (prev_size > 1) {
     auto _now = now();
     if (std::chrono::duration_cast<std::chrono::seconds>(_now - start).count() >
         1800) {
+      beyond_time = true;
       return;
     }
     // set `S_kn` to be the best `k` solutions in `P_n`
@@ -289,7 +293,9 @@ void FSS::search() {
 
 void FSS::init(std::ifstream &fin) {
   cutoff_ = 1000;
-  stagnation_ = 10;
+  stagnation_ = 100;
+
+  beyond_time = false;
 
   u32 n, m;
   fin >> n >> m;

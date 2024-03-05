@@ -12,7 +12,7 @@
 
 class FSS {
 private:
-  u32 timestarmp_;
+  u32 timestramp_;
   u32 cutoff_;
   double size_;
   double factor_;
@@ -35,8 +35,11 @@ private:
   u32 stagnation_;
 
 public:
+  bool beyond_time;
+
+public:
   FSS() {
-    timestarmp_ = 0;
+    timestramp_ = 0;
     size_ = 0;
     factor_ = 1;
     population_size_ = 100;
@@ -45,7 +48,7 @@ public:
   };
 
   FSS(Graph &graph) : graph_(graph) {
-    timestarmp_ = 0;
+    timestramp_ = 0;
     size_ = 0;
     factor_ = 1;
     population_size_ = 100;
@@ -62,6 +65,7 @@ public:
   void fix_search();
   void greedy();
   void local_search();
+  void pre_processing();
   // void Ob(std::vector<std::pair<u32, double>> &candidate, u32 v);
   void observe(u32 vertex, u32 origin);
   void observe_one(u32 vertex, u32 origin, std::stack<u32> &stack_);

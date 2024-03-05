@@ -19,15 +19,22 @@ int main(int argc, const char *argv[]) {
 
   fss.init(fin);
 
+  fss.pre_processing();
+
   auto t0 = now();
 
   fss.search();
 
   auto t1 = now();
 
-  fout << std::chrono::duration_cast<std::chrono::microseconds>(t1 - t0).count()
-       << "us" << std::endl;
-
+  if (fss.beyond_time) {
+    fout << "Time limit exceeded" << std::endl;
+    fout << "1800s" << std::endl;
+  } else {
+    fout << std::chrono::duration_cast<std::chrono::microseconds>(t1 - t0)
+                .count()
+         << "us" << std::endl;
+  }
   auto solution = fss.get_best_solution();
   fout << solution.size() << std::endl;
   for (auto &v : solution) {
