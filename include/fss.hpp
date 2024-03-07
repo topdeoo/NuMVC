@@ -36,6 +36,7 @@ private:
 
 public:
   bool beyond_time;
+  u32 min_ans;
 
 public:
   FSS() {

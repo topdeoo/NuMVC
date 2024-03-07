@@ -178,7 +178,7 @@ void FSS::next_size() {
 }
 
 void FSS::fix_search() {
-  solution_.clear();
+  clear();
   auto total_size = (u32)(size_ * b_.size());
   map<u32, u32> score;
   for (auto &s_i : skn_) {
@@ -243,7 +243,8 @@ void FSS::search() {
 
   u32 not_improve = 0, prev_size = best_solution_.size();
 
-  while (prev_size > 1) {
+  while (prev_size > 1 && timestramp_ < cutoff_ &&
+         min_ans < best_solution_.size()) {
     auto _now = now();
     if (std::chrono::duration_cast<std::chrono::seconds>(_now - start).count() >
         1800) {
@@ -292,10 +293,12 @@ void FSS::search() {
 }
 
 void FSS::init(std::ifstream &fin) {
-  cutoff_ = 1000;
+  cutoff_ = 100;
   stagnation_ = 100;
 
   beyond_time = false;
+
+  fin >> this->min_ans;
 
   u32 n, m;
   fin >> n >> m;
