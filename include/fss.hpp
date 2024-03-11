@@ -21,6 +21,9 @@ private:
   Graph graph_;
   Graph dependencies_;
   map<u32, u32> unobserved_degree_;
+  map<u32, u32> origin_unobserved_degree_;
+
+  set<u32> not_in_solution_;
 
   set<u32> solution_;
   set<u32> best_solution_;

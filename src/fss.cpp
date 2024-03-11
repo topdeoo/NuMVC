@@ -3,6 +3,7 @@
 #include <chrono>
 #include <fstream>
 #include <functional>
+#include <iostream>
 #include <optional>
 #include <random>
 #include <utility>
@@ -62,6 +63,7 @@ void FSS::propagate(std::stack<u32> &stack_) {
 
 void FSS::add_into_solution(u32 vertex) {
   solution_.insert(vertex);
+  not_in_solution_.erase(vertex);
 
   if (dependencies_.has_vertex(vertex)) {
     auto neighbors = dependencies_.get_in_neighbors(vertex);
@@ -83,6 +85,8 @@ void FSS::remove_from_solution(u32 v) {
   set<u32> enqueued;
 
   solution_.erase(v);
+  not_in_solution_.insert(v);
+
   stack_.push(v);
   enqueued.insert(v);
 
@@ -135,24 +139,25 @@ inline bool FSS::is_in_solution(u32 v) { return solution_.count(v) > 0; }
 
 void FSS::greedy() {
   while (!all_observed()) {
-    std::vector<std::pair<u32, double>> candidate;
-    for (auto &v : graph_.vertices()) {
-      if (!is_in_solution(v)) {
-        auto prev_dependencies = dependencies_;
-        add_into_solution(v);
-        auto score = dependencies_.vertices().size() -
-                     prev_dependencies.vertices().size();
-        candidate.push_back({v, score * alpha_()});
-        dependencies_ = prev_dependencies;
-        solution_.erase(v);
+    u32 vertex = 0;
+    double max_score = -1;
+    for (auto &v : not_in_solution_) {
+      // auto prev_dependencies = dependencies_;
+      // add_into_solution(v);
+      // auto score =
+      //     dependencies_.vertices().size() -
+      //     prev_dependencies.vertices().size();
+      auto score = unobserved_degree_[v];
+      auto random_score = score * alpha_();
+      if (random_score > max_score) {
+        max_score = random_score;
+        vertex = v;
       }
+      // dependencies_ = prev_dependencies;
+      // solution_.erase(v);
     }
-    sort(candidate.begin(), candidate.end(),
-         [](const std::pair<u32, u32> &a, const std::pair<u32, u32> &b) {
-           return a.second > b.second;
-         });
-    if (!candidate.empty()) {
-      add_into_solution(candidate[0].first);
+    if (max_score >= 0) {
+      add_into_solution(vertex);
     } else {
       break;
     }
@@ -188,21 +193,20 @@ void FSS::fix_search() {
       }
     }
   }
-  std::vector<std::pair<u32, u32>> candidate(score.begin(), score.end());
-  sort(candidate.begin(), candidate.end(),
-       [](const std::pair<u32, u32> &a, const std::pair<u32, u32> &b) {
-         return a.second > b.second;
-       });
+  u32 vertex = 0, max_score = 0;
+  for (auto &[k, v] : score) {
+    if (v > max_score) {
+      max_score = v;
+      vertex = k;
+    }
+  }
   for (auto i = 0; i < total_size; i++) {
-    add_into_solution(candidate[i].first);
+    add_into_solution(vertex);
   }
 }
 
 void FSS::grasp() {
   greedy();
-  if (!all_observed()) {
-    return;
-  }
   local_search();
   if (solution_.size() < best_solution_.size() || best_solution_.empty()) {
     best_solution_ = solution_;
@@ -210,12 +214,10 @@ void FSS::grasp() {
 }
 
 void FSS::clear() {
+  not_in_solution_ = graph_.vertices();
   solution_.clear();
   dependencies_.clear();
-  unobserved_degree_.clear();
-  for (auto &v : graph_.vertices()) {
-    unobserved_degree_[v] = graph_.degree(v);
-  }
+  unobserved_degree_ = origin_unobserved_degree_;
 }
 
 void FSS::pre_processing() {
@@ -232,6 +234,7 @@ void FSS::pre_processing() {
       worst_solution_.first = i;
     }
     population_.push_back(best_solution_);
+    // std::cout << i << std::endl;
   }
 }
 
@@ -241,16 +244,18 @@ void FSS::search() {
 
   next_size();
 
-  u32 not_improve = 0, prev_size = best_solution_.size();
+  u32 not_improve = 0;
 
-  while (prev_size > 1 && timestramp_ < cutoff_ &&
-         min_ans < best_solution_.size()) {
+  while (timestramp_ < cutoff_ && min_ans < best_solution_.size()) {
     auto _now = now();
     if (std::chrono::duration_cast<std::chrono::seconds>(_now - start).count() >
         1800) {
       beyond_time = true;
       return;
     }
+
+    auto prev_best_solution = best_solution_;
+
     // set `S_kn` to be the best `k` solutions in `P_n`
     skn_.clear();
     set<u32> skn;
@@ -278,14 +283,14 @@ void FSS::search() {
       }
     }
 
-    if (best_solution_.size() == prev_size) {
+    if (best_solution_.size() == prev_best_solution.size()) {
       not_improve += 1;
     } else {
       not_improve = 0;
-      prev_size = best_solution_.size();
+      best_solution_ = prev_best_solution;
     }
 
-    if (not_improve > stagnation_) {
+    if (not_improve >= stagnation_) {
       next_size();
       not_improve = 0;
     }
@@ -313,6 +318,9 @@ void FSS::init(std::ifstream &fin) {
   for (auto &v : graph_.vertices()) {
     unobserved_degree_[v] = graph_.degree(v);
   }
+
+  origin_unobserved_degree_ = unobserved_degree_;
+  not_in_solution_ = graph_.vertices();
 }
 
 set<u32> FSS::get_best_solution() { return best_solution_; }
