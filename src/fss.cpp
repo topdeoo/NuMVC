@@ -1,29 +1,22 @@
 #include "fss.hpp"
 #include "basic.hpp"
-#include <chrono>
-#include <fstream>
-#include <functional>
-#include <iostream>
 #include <optional>
-#include <random>
-#include <utility>
-#include <vector>
 
-extern auto now() { return std::chrono::high_resolution_clock::now(); }
+// extern auto now() { return std::chrono::high_resolution_clock::now(); }
 
-static std::random_device rd{"hw"};
-static double alpha_() {
-  // NOTE alpha \sim U(1, R), the "R" here is 2
-  static auto gen = std::bind(std::uniform_real_distribution<>(1, 2),
-                              std::default_random_engine(rd()));
-  return gen();
-}
+// static std::random_device rd{"hw"};
+// static double alpha_() {
+//   // NOTE alpha \sim U(1, R), the "R" here is 2
+//   static auto gen = std::bind(std::uniform_real_distribution<>(1, 2),
+//                               std::default_random_engine(rd()));
+//   return gen();
+// }
 
-static u32 index(u32 size) {
-  static auto gen = std::bind(std::uniform_int_distribution<>(0, size - 1),
-                              std::default_random_engine(rd()));
-  return gen();
-}
+// static u32 index(u32 size) {
+//   static auto gen = std::bind(std::uniform_int_distribution<>(0, size - 1),
+//                               std::default_random_engine(rd()));
+//   return gen();
+// }
 
 void FSS::observe(u32 vertex, u32 origin) {
   std::stack<u32> stack_;
@@ -62,8 +55,6 @@ void FSS::propagate(std::stack<u32> &stack_) {
 }
 
 void FSS::add_into_solution(u32 vertex) {
-  solution_.insert(vertex);
-  not_in_solution_.erase(vertex);
 
   if (dependencies_.has_vertex(vertex)) {
     auto neighbors = dependencies_.get_in_neighbors(vertex);
@@ -85,7 +76,6 @@ void FSS::remove_from_solution(u32 v) {
   set<u32> enqueued;
 
   solution_.erase(v);
-  not_in_solution_.insert(v);
 
   stack_.push(v);
   enqueued.insert(v);
@@ -129,198 +119,10 @@ void FSS::remove_from_solution(u32 v) {
   propagate(propagating);
 }
 
-bool FSS::all_observed() {
+inline bool FSS::all_observed() {
   return dependencies_.vertices().size() == graph_.vertices().size();
 }
 
 inline bool FSS::is_observed(u32 v) { return dependencies_.has_vertex(v); }
 
 inline bool FSS::is_in_solution(u32 v) { return solution_.count(v) > 0; }
-
-void FSS::greedy() {
-  while (!all_observed()) {
-    u32 vertex = 0;
-    double max_score = -1;
-    for (auto &v : not_in_solution_) {
-      // auto prev_dependencies = dependencies_;
-      // add_into_solution(v);
-      // auto score =
-      //     dependencies_.vertices().size() -
-      //     prev_dependencies.vertices().size();
-      auto score = unobserved_degree_[v];
-      auto random_score = score * alpha_();
-      if (random_score > max_score) {
-        max_score = random_score;
-        vertex = v;
-      }
-      // dependencies_ = prev_dependencies;
-      // solution_.erase(v);
-    }
-    if (max_score >= 0) {
-      add_into_solution(vertex);
-    } else {
-      break;
-    }
-  }
-}
-
-void FSS::local_search() {
-  auto candidate = solution_;
-  for (auto &v : candidate) {
-    auto prev = dependencies_;
-    remove_from_solution(v);
-    if (!all_observed()) {
-      dependencies_ = prev;
-      solution_.insert(v);
-    }
-  }
-}
-
-void FSS::next_size() {
-  double size = size_ + factor_ / 2;
-  size_ = size;
-  factor_ /= 2;
-}
-
-void FSS::fix_search() {
-  clear();
-  auto total_size = (u32)(size_ * b_.size());
-  map<u32, u32> score;
-  for (auto &s_i : skn_) {
-    for (auto &v : s_i) {
-      if (b_.count(v) > 0) {
-        score[v] += 1;
-      }
-    }
-  }
-  u32 vertex = 0, max_score = 0;
-  for (auto &[k, v] : score) {
-    if (v > max_score) {
-      max_score = v;
-      vertex = k;
-    }
-  }
-  for (auto i = 0; i < total_size; i++) {
-    add_into_solution(vertex);
-  }
-}
-
-void FSS::grasp() {
-  greedy();
-  local_search();
-  if (solution_.size() < best_solution_.size() || best_solution_.empty()) {
-    best_solution_ = solution_;
-  }
-}
-
-void FSS::clear() {
-  not_in_solution_ = graph_.vertices();
-  solution_.clear();
-  dependencies_.clear();
-  unobserved_degree_ = origin_unobserved_degree_;
-}
-
-void FSS::pre_processing() {
-  // generate `population_size_ = max(n_, m_)` best solutions
-  for (auto i = 0; i < N_; i++) {
-    if (i > population_size_) {
-      break;
-    }
-    clear();
-    grasp();
-    if (best_solution_.size() > worst_solution_.second ||
-        worst_solution_.second == 0) {
-      worst_solution_.second = best_solution_.size();
-      worst_solution_.first = i;
-    }
-    population_.push_back(best_solution_);
-    // std::cout << i << std::endl;
-  }
-}
-
-void FSS::search() {
-
-  auto start = now();
-
-  next_size();
-
-  u32 not_improve = 0;
-
-  while (timestramp_ < cutoff_ && min_ans < best_solution_.size()) {
-    auto _now = now();
-    if (std::chrono::duration_cast<std::chrono::seconds>(_now - start).count() >
-        1800) {
-      beyond_time = true;
-      return;
-    }
-
-    auto prev_best_solution = best_solution_;
-
-    // set `S_kn` to be the best `k` solutions in `P_n`
-    skn_.clear();
-    set<u32> skn;
-    while (skn.size() < k_) {
-      skn.insert(index(population_size_));
-    }
-    for (auto i : skn) {
-      skn_.push_back(population_[i]);
-    }
-
-    b_ = population_[index(population_size_)];
-
-    fix_search();
-
-    grasp();
-
-    // Union into `P`
-    if (solution_.size() < worst_solution_.second) {
-      population_[worst_solution_.first] = solution_;
-      for (auto i = 0; i < population_size_; i++) {
-        if (population_[i].size() > worst_solution_.second) {
-          worst_solution_.second = population_[i].size();
-          worst_solution_.first = i;
-        }
-      }
-    }
-
-    if (best_solution_.size() == prev_best_solution.size()) {
-      not_improve += 1;
-    } else {
-      not_improve = 0;
-      best_solution_ = prev_best_solution;
-    }
-
-    if (not_improve >= stagnation_) {
-      next_size();
-      not_improve = 0;
-    }
-  }
-}
-
-void FSS::init(std::ifstream &fin) {
-  cutoff_ = 100;
-  stagnation_ = 100;
-
-  beyond_time = false;
-
-  fin >> this->min_ans;
-
-  u32 n, m;
-  fin >> n >> m;
-
-  for (u32 i = 0; i < m; i++) {
-    u32 from, to;
-    fin >> from >> to;
-    graph_.add_edge(from, to);
-    graph_.add_edge(to, from);
-  }
-
-  for (auto &v : graph_.vertices()) {
-    unobserved_degree_[v] = graph_.degree(v);
-  }
-
-  origin_unobserved_degree_ = unobserved_degree_;
-  not_in_solution_ = graph_.vertices();
-}
-
-set<u32> FSS::get_best_solution() { return best_solution_; }

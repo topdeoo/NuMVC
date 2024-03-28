@@ -3,7 +3,6 @@
 #include "graph.hpp"
 #include <fstream>
 #include <iostream>
-#include <stack>
 
 int main(int argc, const char *argv[]) {
   if (argc <= 2) {

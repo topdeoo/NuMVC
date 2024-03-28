@@ -3,9 +3,6 @@
 #ifndef __GRAPH_HPP__
 #define __GRAPH_HPP__
 #include "basic.hpp"
-#include <queue>
-#include <utility>
-#include <vector>
 
 // NOTE: assume that the graph is undirected
 class Graph {
