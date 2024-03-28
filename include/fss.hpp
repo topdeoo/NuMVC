@@ -3,6 +3,7 @@
 #ifndef __FSS_HPP__
 #define __FSS_HPP__
 #include "basic.hpp"
+#include "candidate.hpp"
 #include "graph.hpp"
 #include <stack>
 
@@ -11,6 +12,8 @@ private:
   Graph graph_;
   Graph dependencies_;
   map<u32, u32> unobserved_degree_;
+
+  CandidateSet candidate_;
 
   set<u32> solution_;
   set<u32> best_solution_;
