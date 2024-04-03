@@ -25,28 +25,28 @@ int main( int argc, const char* argv[] ) {
 
     NuPDS pds( g );
 
-    pds.add_into_solution( 23 );
-    for ( auto& v : pds.get_observed_vertex() ) {
-        std::cout << v << ' ';
-    }
-    std::cout << std::endl;
+    // pds.add_into_solution( 23 );
+    // for ( auto& v : pds.get_observed_vertex() ) {
+    //     std::cout << v << ' ';
+    // }
+    // std::cout << std::endl;
 
-    pds.add_into_solution( 6 );
-    for ( auto& v : pds.get_observed_vertex() ) {
-        std::cout << v << ' ';
-    }
-    std::cout << std::endl;
+    // pds.add_into_solution( 6 );
+    // for ( auto& v : pds.get_observed_vertex() ) {
+    //     std::cout << v << ' ';
+    // }
+    // std::cout << std::endl;
 
-    pds.add_into_solution( 10 );
-    for ( auto& v : pds.get_observed_vertex() ) {
-        std::cout << v << ' ';
-    }
-    std::cout << std::endl;
+    // pds.add_into_solution( 10 );
+    // for ( auto& v : pds.get_observed_vertex() ) {
+    //     std::cout << v << ' ';
+    // }
+    // std::cout << std::endl;
 
-    pds.add_into_solution( 30 );
-    for ( auto& v : pds.get_observed_vertex() ) {
-        std::cout << v << ' ';
-    }
-    std::cout << std::endl;
+    // pds.add_into_solution( 30 );
+    // for ( auto& v : pds.get_observed_vertex() ) {
+    //     std::cout << v << ' ';
+    // }
+    // std::cout << std::endl;
     return 0;
 }

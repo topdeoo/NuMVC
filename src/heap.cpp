@@ -172,9 +172,7 @@ void pop( HEAPTYPE which ) {
     down( 1, which );
 }
 
-void init_heap( u32 n, Graph &graph ) {
-    add_heap_index = remove_heap_index = 0;
-    add_score.resize( n + 1 );
+void init_remove_set( u32 n, Graph &graph ) {
     removing_score.resize( n + 1 );
     std::fill( removing_score.begin(), removing_score.end(), std::make_pair( UINT32_MAX, UINT32_MAX ) );
 }

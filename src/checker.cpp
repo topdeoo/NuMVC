@@ -28,13 +28,14 @@ int main( int argc, const char *argv[] ) {
     NuPDS pds( g );
 
     sol >> t;
+    sol >> t;
 
     u32 k;
     sol >> k;
     for ( u32 i = 0; i < k; i++ ) {
         u32 v;
         sol >> v;
-        pds.add_into_solution( v );
+        pds.add_into_solution( { v, -1 } );
     }
 
     std::cout << argv[2] << " ";
