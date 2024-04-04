@@ -1,6 +1,5 @@
 #include <fstream>
 #include <iostream>
-#include <stack>
 
 #include "basic.hpp"
 #include "graph.hpp"
@@ -35,7 +34,7 @@ int main( int argc, const char *argv[] ) {
     for ( u32 i = 0; i < k; i++ ) {
         u32 v;
         sol >> v;
-        pds.add_into_solution( { v, -1 } );
+        pds.add_into_solution( v );
     }
 
     std::cout << argv[2] << " ";

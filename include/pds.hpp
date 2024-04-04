@@ -74,11 +74,11 @@ public:
     void update_candidate_after_remove( u32 vertex );
 
     // select function
-    std::pair<u32, double> select_add_vertex();
+    std::pair<u32, double> select_add_vertex( bool first = false );
     u32 select_remove_vertex( bool random = false );
 
     // update solution
-    void add_into_solution( std::pair<u32, double> v, bool fake = true );
+    void add_into_solution( u32 v );
     void remove_from_solution( u32 v );
     void redundant_removal();
 

@@ -1,6 +1,5 @@
 #include "pds.hpp"
 
-#include <cstdint>
 #include <iostream>
 #include <optional>
 #include <stack>
@@ -72,18 +71,12 @@ void NuPDS::init( std::ifstream &fin ) {
         tabu_[v] = 0;
     }
 
-    // TODO
     cutoff_ = 1000;
-
-    // init_remove_set( n, graph_ );
 }
 
 void NuPDS::pre_process() {
-    timestamp_ = 0;
-
     for ( auto &v : pre_selected_ ) {
-        add_into_solution( { v, -1 }, false );
-        tabu_[v] = 0;
+        add_into_solution( v );
     }
 }
 
@@ -93,7 +86,7 @@ void NuPDS::observe_one( u32 vertex, u32 origin, std::stack<u32> &stack_ ) {
         non_observed_.erase( vertex );
         if ( origin != vertex ) dependencies_.add_edge( origin, vertex );
         if ( unobserved_degree_[vertex] == 1 ) stack_.push( vertex );
-        for ( auto w : graph_.get_out_neighbors( vertex ) ) {
+        for ( auto w : graph_.get_neighbors( vertex ) ) {
             cc_[w] = true;
             unobserved_degree_[w] -= 1;
             if ( unobserved_degree_[w] == 1 && is_observed( w ) && can_propagate( w ) )
@@ -127,9 +120,8 @@ bool NuPDS::not_exculded( u32 v ) { return excluded_.find( v ) == excluded_.end(
 
 bool NuPDS::is_tabu( u32 v ) { return tabu_[v] > 0; }
 
-void NuPDS::add_into_solution( std::pair<u32, double> vertex_pair, bool fake ) {
-    auto v = vertex_pair.first;
-    u32 score = dependencies_.vertex_nums();
+void NuPDS::add_into_solution( u32 vertex ) {
+    auto v = vertex;
 
     if ( dependencies_.has_vertex( v ) ) {
         auto neighbors = dependencies_.get_in_neighbors( v );
@@ -144,19 +136,6 @@ void NuPDS::add_into_solution( std::pair<u32, double> vertex_pair, bool fake ) {
         observe_one( w, v, stack_ );
     }
     propagate( stack_ );
-
-    if ( !fake ) {
-        // side effect
-        solution_.insert( v );
-        tabu_[v] = tabu_size_;
-        if ( !vertices_state_[v].pre_selected ) {
-            if ( vertex_pair.second != -1 ) {
-                remove_score_[v] = vertex_pair.second;
-            } else {
-                remove_score_[v] = ( dependencies_.vertex_nums() - score ) * ( 1 + random_alpha() );
-            }
-        }
-    }
 }
 
 void NuPDS::remove_from_solution( u32 v ) {
@@ -206,12 +185,6 @@ void NuPDS::remove_from_solution( u32 v ) {
     }
 
     propagate( propagating );
-
-    // side effect
-    tabu_[v] = tabu_size_;
-    solution_.erase( v );
-    cc_[v] = false;
-    remove_score_.erase( v );
 }
 
 bool NuPDS::is_effected( u32 vertex, const set<u32> &changed ) {
@@ -252,44 +225,64 @@ void NuPDS::update_candidate_after_add( u32 vertex ) {
     }
     vertices_state_[vertex].used = true;
     available_candidates_.erase( vertex );
+    solution_.insert( vertex );
+    tabu_[vertex] = tabu_size_;
 }
 
 void NuPDS::update_candidate_after_remove( u32 vertex ) {
     auto nei_changed = get_neighbor( non_observed_ );
-    // set<u32> effected;
-    for ( auto &v : available_candidates_ ) {
-        auto state = vertices_state_[v];
-        if ( ( !state.used ) && ( !state.update ) ) {
-            if ( is_effected( v, nei_changed ) ) {
-                // effected.insert( v );
-                vertices_state_[v].update = true;
+    if ( !nei_changed.empty() ) {
+        for ( auto &v : available_candidates_ ) {
+            auto state = vertices_state_[v];
+            if ( ( !state.used ) && ( !state.update ) ) {
+                if ( is_effected( v, nei_changed ) ) {
+                    // effected.insert( v );
+                    vertices_state_[v].update = true;
+                }
             }
         }
     }
     vertices_state_[vertex].used = false;
     available_candidates_.insert( vertex );
+    tabu_[vertex] = tabu_size_;
+    solution_.erase( vertex );
+    cc_[vertex] = false;
+    remove_score_.erase( vertex );
 }
 
-std::pair<u32, double> NuPDS::select_add_vertex() {
+std::pair<u32, double> NuPDS::select_add_vertex( bool first ) {
+    if ( first ) {
+        auto v = compress_[random_int( 0, compress_.size() - 1 )];
+        return { v, dependencies_.vertex_nums() };
+    }
+
     double maxn = -1;
     u32 ret = *available_candidates_.begin();
 
     for ( auto &v : available_candidates_ ) {
-        if ( vertices_state_[v].update && !is_tabu( v ) && cc_[v] ) {
-            auto prev = dependencies_;
-            auto prev_unobserved = unobserved_degree_;
-            add_into_solution( { v, -1 }, true );
-            auto score = dependencies_.vertex_nums() - prev.vertex_nums();
-            dependencies_ = std::move( prev );
-            unobserved_degree_ = std::move( prev_unobserved );
-            vertices_state_[v].update = false;
-            double vscore = score * ( 1 + random_alpha() );
-            if ( vscore > maxn ) {
-                maxn = vscore;
-                ret = v;
+        if ( !is_tabu( v ) ) {
+            if ( vertices_state_[v].update && cc_[v] ) {
+                auto prev = dependencies_;
+                auto prev_unobserved = unobserved_degree_;
+                auto prev_non_observed = non_observed_;
+
+                add_into_solution( v );
+                auto score = dependencies_.vertex_nums() - prev.vertex_nums();
+
+                dependencies_ = std::move( prev );
+                unobserved_degree_ = std::move( prev_unobserved );
+                non_observed_ = std::move( prev_non_observed );
+
+                vertices_state_[v].update = false;
+                double vscore = score * ( 1 + random_alpha() );
+                if ( vscore > maxn ) {
+                    maxn = vscore;
+                    ret = v;
+                }
             }
+        } else {
+            tabu_[v]--;
         }
-        tabu_[v]--;
     }
     if ( maxn == -1 ) {
         return { compress_[random_int( 0, compress_.size() - 1 )], -1 };
@@ -298,31 +291,44 @@ std::pair<u32, double> NuPDS::select_add_vertex() {
 }
 
 u32 NuPDS::select_remove_vertex( bool random ) {
-    double minn = INT32_MAX;
-    u32 ret = remove_score_.begin()->first;
     if ( random ) {
         auto n = compress_.size();
         auto idx = random_int( 0, n - 1 );
         return compress_[idx];
     }
+
+    double minn = 0x3f3f3f3f * 1.0;
+    u32 ret = remove_score_.begin()->first;
+
     for ( auto &[v, score] : remove_score_ ) {
-        if ( !is_tabu( v ) && cc_[v] && minn > score && !vertices_state_[v].pre_selected ) {
-            minn = score;
-            ret = v;
+        if ( !is_tabu( v ) ) {
+            if ( cc_[v] && minn > score ) {
+                minn = score;
+                ret = v;
+            }
+        } else {
+            tabu_[v]--;
         }
-        tabu_[v]--;
     }
-    if ( minn == INT32_MAX ) {
+    if ( minn == 0x3f3f3f3f * 1.0 ) {
         return compress_[random_int( 0, compress_.size() - 1 )];
     }
     return ret;
 }
 
 void NuPDS::greedy() {
+    bool first = true;
     while ( !all_observed() ) {
-        auto v = select_add_vertex();
-        add_into_solution( v, false );
+        auto v = select_add_vertex( first );
+        add_into_solution( v.first );
         update_candidate_after_add( v.first );
+        if ( first ) {
+            first = false;
+            remove_score_[v.first] =
+                ( dependencies_.vertex_nums() - v.second ) * ( 1 + random_alpha() );
+        } else {
+            remove_score_[v.first] = v.second;
+        }
     }
 }
 
@@ -330,20 +336,22 @@ void NuPDS::redundant_removal() {
     // step1: remove all unnecessary vertices
     auto candidates = solution_;
     for ( auto &v : candidates ) {
-        auto copy_graph = dependencies_;
-        auto unobserved = unobserved_degree_;
-        auto non_observed = non_observed_;
-        auto copy_score = remove_score_;
+        non_observed_.clear();
+
+        auto copy_dependencies = dependencies_;
+        auto copy_unobserved_degree = unobserved_degree_;
+        auto copy_cc = cc_;
+
         remove_from_solution( v );
+
         if ( !all_observed() ) {
-            solution_.insert( v );
-            dependencies_ = std::move( copy_graph );
-            unobserved_degree_ = std::move( unobserved );
-            non_observed_ = std::move( non_observed );
-            remove_score_ = std::move( copy_score );
+            dependencies_ = std::move( copy_dependencies );
+            unobserved_degree_ = std::move( copy_unobserved_degree );
+            cc_ = std::move( copy_cc );
+        } else {
+            // side effect
+            update_candidate_after_remove( v );
             tabu_[v] = 0;
-            cc_[v] = true;
-            // add_into_solution( { v, -1 }, false );
         }
     }
 }
@@ -358,14 +366,13 @@ void NuPDS::solve() {
         return;
     }
 
-    for ( auto &[k, v] : unobserved_degree_ ) {
-        v = 0;
-    }
+    // for ( auto &[k, v] : unobserved_degree_ ) {
+    //     v = 0;
+    // }
 
     tabu_.clear();
 
     redundant_removal();
-    best_solution_ = solution_;
 
     timestamp_ = 0;
     u32 not_improve = 0;
@@ -373,17 +380,10 @@ void NuPDS::solve() {
 
     // step2: local search
     while ( timestamp_ < cutoff_ ) {
-        // if ( timestamp_ % 10 == 0 && all_observed() ) {
-        //     std::cout << "redundant removal" << std::endl;
-        //     redundant_removal();
-        //     best_solution_ = solution_;
-        //     timestamp_++;
-        //     continue;
-        // }
         if ( all_observed() ) {
             // should random select a vertex to remove
             // std::cout << "remove random vertex" << std::endl;
-            redundant_removal();
+            // redundant_removal();
             best_solution_ = solution_;
             auto v = select_remove_vertex( true );
             // std::cout << "\tremove vertex: " << v << std::endl;
@@ -392,7 +392,8 @@ void NuPDS::solve() {
             continue;
         }
         // std::cout << "local search" << std::endl;
-        auto v = select_remove_vertex();
+        auto v = select_remove_vertex( false );
+        non_observed_.clear();
         // if ( v == prev_add ) {
         //     std::cout << "\033[31mloop\033[0m" << std::endl;
         //     std::cout << tabu_[v] << " " << tabu_[prev_add] << std::endl;
@@ -400,11 +401,12 @@ void NuPDS::solve() {
         // std::cout << "\tremove vertex: " << v << std::endl;
         remove_from_solution( v );
         update_candidate_after_remove( v );
-        auto u = select_add_vertex();
+        auto u = select_add_vertex( false );
         // prev_add = u.first;
         // std::cout << "\tadd vertex: " << u.first << std::endl;
-        add_into_solution( u, false );
+        add_into_solution( u.first );
         update_candidate_after_add( u.first );
+        remove_score_[u.first] = u.second;
 
         timestamp_++;
         if ( solution_.size() >= best_solution_.size() ) {
