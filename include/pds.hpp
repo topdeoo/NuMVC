@@ -7,7 +7,6 @@
 
 #include "basic.hpp"
 #include "graph.hpp"
-#include "heap.h"
 
 struct VertexState {
     bool used;
@@ -25,11 +24,9 @@ public:
     NuPDS( const Graph &graph ) : graph_( graph ) {
         for ( auto &v : graph_.vertices() ) {
             unobserved_degree_[v] = graph_.degree( v );
-            age[v] = 0;
             cc_[v] = true;
             tabu_[v] = 0;
         }
-        init_remove_set( graph.vertices().size(), graph_ );
     };
     void init( std::ifstream &fin );
     void pre_process();

@@ -7,7 +7,20 @@
 
 #include "basic.hpp"
 #include "graph.hpp"
-#include "heap.h"
+
+static std::random_device rd{ "hw" };
+
+double random_alpha() {
+    static auto gen =
+        std::bind( std::uniform_real_distribution<>( 0, 1 ), std::default_random_engine( rd() ) );
+    return gen();
+}
+
+u32 random_int( u32 l, u32 r ) {
+    static auto gen =
+        std::bind( std::uniform_int_distribution<u32>( l, r ), std::default_random_engine( rd() ) );
+    return gen();
+}
 
 void NuPDS::init( std::ifstream &fin ) {
     u32 n, m;
@@ -66,7 +79,6 @@ void NuPDS::init( std::ifstream &fin ) {
 
     for ( auto &v : graph_.vertices() ) {
         unobserved_degree_[v] = graph_.degree( v );
-        age[v] = 0;
         cc_[v] = true;
         tabu_[v] = 0;
     }
@@ -262,16 +274,16 @@ std::pair<u32, double> NuPDS::select_add_vertex( bool first ) {
     for ( auto &v : available_candidates_ ) {
         if ( !is_tabu( v ) ) {
             if ( vertices_state_[v].update && cc_[v] ) {
-                auto prev = dependencies_;
-                auto prev_unobserved = unobserved_degree_;
-                auto prev_non_observed = non_observed_;
+                auto copy_graph = dependencies_;
+                auto copy_unobserved = unobserved_degree_;
+                auto copy_non_observed = non_observed_;
 
                 add_into_solution( v );
-                auto score = dependencies_.vertex_nums() - prev.vertex_nums();
+                auto score = dependencies_.vertex_nums() - copy_graph.vertex_nums();
 
-                dependencies_ = std::move( prev );
-                unobserved_degree_ = std::move( prev_unobserved );
-                non_observed_ = std::move( prev_non_observed );
+                dependencies_ = std::move( copy_graph );
+                unobserved_degree_ = std::move( copy_unobserved );
+                non_observed_ = std::move( copy_non_observed );
 
                 vertices_state_[v].update = false;
                 double vscore = score * ( 1 + random_alpha() );
@@ -432,7 +444,6 @@ void NuPDS::update_pre_selected() {
     solution_.clear();
     for ( auto &v : graph_.vertices() ) {
         unobserved_degree_[v] = graph_.degree( v );
-        age[v] = 0;
         cc_[v] = true;
         tabu_[v] = 0;
     }

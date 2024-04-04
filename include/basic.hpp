@@ -1,5 +1,7 @@
 #pragma once
 
+#include <functional>
+#include <random>
 #ifndef __BASIC_HPP__
 #define __BASIC_HPP__
 
@@ -38,5 +40,8 @@ using map = std::unordered_map<K, V, custom_hash>;
 
 template <typename K>
 using set = std::unordered_set<K, custom_hash>;
+
+double random_alpha();
+u32 random_int( u32 l, u32 r );
 
 #endif  // __BASIC_HPP__
