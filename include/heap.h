@@ -24,5 +24,6 @@ void pop( HEAPTYPE which );
 void init_remove_set( u32 n, Graph &graph );
 
 double random_alpha();
+u32 random_int( u32 l, u32 r );
 
 #endif  // __HEAP_H__

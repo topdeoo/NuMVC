@@ -30,6 +30,12 @@ double random_alpha() {
     return gen();
 }
 
+u32 random_int( u32 l, u32 r ) {
+    static auto gen =
+        std::bind( std::uniform_int_distribution<u32>( l, r ), std::default_random_engine( rd() ) );
+    return gen();
+}
+
 u32 parient( u32 index ) { return index / 2; }
 u32 left_child( u32 index ) { return 2 * index; }
 u32 right_child( u32 index ) { return 2 * index + 1; }

@@ -37,6 +37,7 @@ public:
 private:
     Graph graph_;
     Graph dependencies_;
+    map<u32, u32> compress_;
     set<u32> solution_;
     map<u32, u32> unobserved_degree_;
     set<u32> non_observed_;
@@ -74,7 +75,7 @@ public:
 
     // select function
     std::pair<u32, double> select_add_vertex();
-    u32 select_remove_vertex();
+    u32 select_remove_vertex( bool random = false );
 
     // update solution
     void add_into_solution( std::pair<u32, double> v, bool fake = true );
