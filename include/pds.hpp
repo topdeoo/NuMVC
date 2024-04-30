@@ -1,97 +1,98 @@
 #pragma once
 
+#include "utility.hpp"
 #ifndef PDS_HPP
 #define PDS_HPP
 #include <fstream>
-#include <stack>
+#include <vector>
 
 #include "basic.hpp"
+#include "common.hpp"
 #include "graph.hpp"
+#include "vecgraph.hpp"
+#include "vecset.hpp"
 
-struct VertexState {
-    bool used;
+enum class VertexState { Blank = 0, Domating = 1, Observed = 2, Exclude = 3, InSured = 4 };
+
+struct Node {
+    std::string name;
+    u32 id;
+    bool non_propgating;
     bool update;
-    bool excluded;
-    bool pre_selected;
+    VertexState state;
 };
+
+using Graph = mpgraphs::VecGraph<Node, mpgraphs::EdgeDirection::Undirected, true, u8, u32>;
+using DenpenceGraph =
+    mpgraphs::VecGraph<mpgraphs::Empty, mpgraphs::EdgeDirection::Bidirectional, true, u8>;
+
+template <typename T>
+using VertexMap = mpgraphs::VecMap<Graph::VertexDescriptor, T, u8>;
+
+using VertexSet = mpgraphs::VecSet<Graph::VertexDescriptor, u8>;
+
+using VertexList = std::vector<Graph::VertexDescriptor>;
 
 class NuPDS {
 public:
-    NuPDS() = default;
-    ~NuPDS() = default;
-    NuPDS( const NuPDS & ) = default;
-    NuPDS( NuPDS && ) = default;
-    NuPDS( const Graph &graph ) : graph_( graph ) {
-        for ( auto &v : graph_.vertices() ) {
-            unobserved_degree_[v] = graph_.degree( v );
-            cc_[v] = true;
-            tabu_[v] = 0;
-        }
-    };
-    void init( std::ifstream &fin );
-    void pre_process();
+    using Vertex = Graph::VertexDescriptor;
 
 private:
+    VertexMap<u32> unobserved_degree_;
+    mpgraphs::set<Vertex> add_available_vertices_;
+    mpgraphs::map<Vertex, double> remove_available_vertices_;
+    u32 dominating_count_ = 0;
+    u32 cutoff_ = 1000;
     Graph graph_;
-    Graph dependencies_;
-    map<u32, u32> compress_;
-    set<u32> solution_;
-    map<u32, u32> unobserved_degree_;
-    set<u32> non_observed_;
-    map<u32, double> add_score_;
-    map<u32, double> remove_score_;
-    map<u32, bool> cc_;
-    map<u32, u32> tabu_;
-    u32 tabu_size_;
-    set<u32> best_solution_;
-    u32 timestamp_;
-    u32 cutoff_;
-    set<u32> pre_selected_;  // already in solution
-    map<u32, VertexState> vertices_state_;
-    set<u32> available_candidates_;
-    set<u32> excluded_;         // will nerver in solution
-    set<u32> non_propagating_;  // won't do propagation
-    double alpha_;
-    // double gamma_;
+    DenpenceGraph dependencies_;
+
+private:
+    void propagate( std::vector<Vertex>& queue );
+    bool observe( Vertex vertex, Vertex origin );
+    bool observeOne( Vertex vertex, Vertex origin, std::vector<Vertex>& queue );
+    std::pair<NuPDS::Vertex, double> selectVertexToAdd( bool first = false );
+    std::pair<NuPDS::Vertex, double> selectVertexToRemove();
+    std::pair<NuPDS::Vertex, double> getBestObserver();
 
 public:
-    // main procedure
-    void solve();
-    void greedy();
+    NuPDS();
+    explicit NuPDS( const Graph& graph );
+    explicit NuPDS( Graph&& graph );
 
-    // dominating
-    void observe_one( u32 vertex, u32 origin, std::stack<u32> &stack_ );
-    void propagate( std::stack<u32> &stack_ );
-    bool is_observed( u32 v );
+    NuPDS( const NuPDS& ) = default;
+    NuPDS( NuPDS&& ) = default;
+    NuPDS& operator=( NuPDS&& ) = default;
+    NuPDS& operator=( const NuPDS& ) = default;
 
-    // update candidate set
-    bool is_effected( u32, const set<u32> & );
-    set<u32> get_neighbor( const set<u32> &, bool closed = false );
-    void update_candidate_after_add( u32 vertex );
-    void update_candidate_after_remove( u32 vertex );
+    void addEdge( Vertex source, Vertex target );
+    void removeVertex( Vertex v );
 
-    // select function
-    std::pair<u32, double> select_add_vertex( bool first = false );
-    u32 select_remove_vertex( bool random = false );
+    bool setDominating( Vertex vertex );
+    void updateAfterDominating( Vertex vertex, double score );
+    void getClouser( Vertex vertex, mpgraphs::set<Vertex>& clouser );
+    bool removeDominating( Vertex vertex );
+    void updateAfterRemoving( Vertex vertex );
 
-    // update solution
-    void add_into_solution( u32 v );
-    void remove_from_solution( u32 v );
-    void redundant_removal();
-
-    void update_pre_selected();
-
-    // hlep func
-    bool all_observed();
-    bool is_in_solution( u32 v );
-    bool not_exculded( u32 v );
-    bool is_tabu( u32 v );
-    inline bool can_propagate( u32 v ) { return non_propagating_.count( v ) == 0; }
+    inline bool isObserved( Vertex v ) const { return dependencies_.hasVertex( v ); }
+    inline bool isDominating( Vertex v ) const { return graph_[v].state == VertexState::Domating; }
+    inline bool isInSured( Vertex v ) const { return graph_[v].state == VertexState::InSured; }
+    inline bool isBlack( Vertex v ) const { return graph_[v].state == VertexState::Blank; }
+    inline bool isNonPropagating( Vertex v ) const { return graph_[v].non_propgating; }
+    inline bool isUpdate( Vertex v ) const { return graph_[v].update; }
+    inline void setUpdate( Vertex v ) { graph_[v].update = true; }
+    inline bool isObervingEdge( Vertex source, Vertex target ) const {
+        return dependencies_.hasEdge( source, target );
+    }
+    inline u32 unobservedDegree( Vertex v ) const { return unobserved_degree_.at( v ); }
+    inline u32 numObserved() const { return dependencies_.numVertices(); }
+    inline bool allObserved() const { return numObserved() == graph_.numVertices(); }
 
 public:
-    const set<u32> &get_observed_vertex() const;
-    const set<u32> &get_solution() const;
-    const set<u32> &get_best_solution() const;
+    void init( std::ifstream& fin );
+    void GRASP();
+    void localSearch();
+    void search();
+    inline u32 getDominatingCount() const { return dominating_count_; }
+    std::vector<unsigned long> getSolution();
 };
-
 #endif  // PDS_HPP

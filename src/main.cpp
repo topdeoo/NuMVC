@@ -21,11 +21,11 @@ int main( int argc, const char *argv[] ) {
     fin >> t;
 
     pds.init( fin );
-    pds.pre_process();
+    // pds.pre_process();
 
     auto t0 = now();
 
-    pds.solve();
+    pds.search();
 
     auto t1 = now();
 
@@ -34,7 +34,9 @@ int main( int argc, const char *argv[] ) {
     fout << std::chrono::duration_cast<std::chrono::microseconds>( t1 - t0 ).count() << "us"
          << std::endl;
 
-    auto solution = pds.get_best_solution();
+    auto solution = pds.getSolution();
+
+    // auto solution = pds.get_best_solution();
     fout << solution.size() << std::endl;
     for ( auto &v : solution ) {
         fout << v << " ";

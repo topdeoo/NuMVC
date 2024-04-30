@@ -1,18 +1,14 @@
 cmake_minimum_required(VERSION 3.16)
 project(main)
+list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake")
 
-set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Ofast -Wall -Werror")
-# set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Werror -ggdb -fsanitize=address")
+set(CMAKE_CXX_STANDARD 20)
+#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Ofast -Wall -Werror")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Werror -O2 -ggdb -fsanitize=address")
 
 include_directories(include)
 
-add_library(pds_shared SHARED src/graph.cpp src/pds.cpp)
+add_library(pdslib STATIC src/pds.cpp)
 
 add_executable(main src/main.cpp)
-add_executable(checker src/checker.cpp)
-add_executable(test src/test.cpp)
-
-target_link_libraries(main pds_shared)
-target_link_libraries(checker pds_shared)
-target_link_libraries(test pds_shared)
+target_link_libraries(main PUBLIC pdslib)
