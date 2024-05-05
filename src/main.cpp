@@ -3,7 +3,7 @@
 #include <iostream>
 #include <string>
 
-#include "pds.hpp"
+#include "nupds.hpp"
 
 auto now() { return std::chrono::high_resolution_clock::now(); }
 
@@ -15,17 +15,17 @@ int main( int argc, const char *argv[] ) {
     std::ifstream fin( argv[1] );
     std::ofstream fout( argv[2] );
 
-    NuPDS pds;
+    NuPDS solver;
 
     std::string t;
     fin >> t;
 
-    pds.init( fin );
+    solver.init( fin );
     // pds.pre_process();
 
     auto t0 = now();
 
-    pds.search();
+    solver.search();
 
     auto t1 = now();
 
@@ -34,7 +34,7 @@ int main( int argc, const char *argv[] ) {
     fout << std::chrono::duration_cast<std::chrono::microseconds>( t1 - t0 ).count() << "us"
          << std::endl;
 
-    auto solution = pds.getSolution();
+    auto solution = solver.getSolution();
 
     // auto solution = pds.get_best_solution();
     fout << solution.size() << std::endl;

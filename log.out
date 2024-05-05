@@ -1,40 +1,1170 @@
-Select Dominating Vertex: 16
-	Newly Observed: 5
-	Observed: 6
-	Total: 3497
-	Dominating: 2
-Select Dominating Vertex: 26
-	Newly Observed: 6
-	Observed: 12
-	Total: 3497
-	Dominating: 3
-Select Dominating Vertex: 25
-	Newly Observed: 5
-	Observed: 17
-	Total: 3497
-	Dominating: 4
-Select Dominating Vertex: 393
-	Newly Observed: 4
-	Observed: 21
-	Total: 3497
-	Dominating: 5
-Select Dominating Vertex: 394
+Select Dominating Vertex: 597
+	Newly Observed: 0
+	Total: 1277
+	Observed: 139
+	Dominating: 47
+Select Dominating Vertex: 754
 	Newly Observed: 3
-	Observed: 24
-	Total: 3497
-	Dominating: 6
-Select Dominating Vertex: 2
+	Total: 1277
+	Observed: 142
+	Dominating: 48
+Select Dominating Vertex: 694
+	Newly Observed: 7
+	Total: 1277
+	Observed: 149
+	Dominating: 49
+Select Dominating Vertex: 736
+	Newly Observed: 6
+	Total: 1277
+	Observed: 155
+	Dominating: 50
+Select Dominating Vertex: 668
+	Newly Observed: 7
+	Total: 1277
+	Observed: 162
+	Dominating: 51
+Select Dominating Vertex: 847
+	Newly Observed: 8
+	Total: 1277
+	Observed: 170
+	Dominating: 52
+Select Dominating Vertex: 639
+	Newly Observed: 5
+	Total: 1277
+	Observed: 175
+	Dominating: 53
+Select Dominating Vertex: 621
+	Newly Observed: 6
+	Total: 1277
+	Observed: 181
+	Dominating: 54
+Select Dominating Vertex: 97
+	Newly Observed: 5
+	Total: 1277
+	Observed: 186
+	Dominating: 55
+Select Dominating Vertex: 457
+	Newly Observed: 6
+	Total: 1277
+	Observed: 192
+	Dominating: 56
+Select Dominating Vertex: 686
+	Newly Observed: 6
+	Total: 1277
+	Observed: 198
+	Dominating: 57
+Select Dominating Vertex: 367
+	Newly Observed: 6
+	Total: 1277
+	Observed: 204
+	Dominating: 58
+Select Dominating Vertex: 472
+	Newly Observed: 6
+	Total: 1277
+	Observed: 210
+	Dominating: 59
+Select Dominating Vertex: 435
+	Newly Observed: 5
+	Total: 1277
+	Observed: 215
+	Dominating: 60
+Select Dominating Vertex: 428
+	Newly Observed: 7
+	Total: 1277
+	Observed: 222
+	Dominating: 61
+Select Dominating Vertex: 452
+	Newly Observed: 7
+	Total: 1277
+	Observed: 229
+	Dominating: 62
+Select Dominating Vertex: 39
+	Newly Observed: 8
+	Total: 1277
+	Observed: 237
+	Dominating: 63
+Select Dominating Vertex: 235
+	Newly Observed: 9
+	Total: 1277
+	Observed: 246
+	Dominating: 64
+Select Dominating Vertex: 825
+	Newly Observed: 6
+	Total: 1277
+	Observed: 252
+	Dominating: 65
+Select Dominating Vertex: 411
+	Newly Observed: 8
+	Total: 1277
+	Observed: 260
+	Dominating: 66
+Select Dominating Vertex: 25
+	Newly Observed: 6
+	Total: 1277
+	Observed: 266
+	Dominating: 67
+Select Dominating Vertex: 1158
+	Newly Observed: 7
+	Total: 1277
+	Observed: 273
+	Dominating: 68
+Select Dominating Vertex: 1143
+	Newly Observed: 8
+	Total: 1277
+	Observed: 281
+	Dominating: 69
+Select Dominating Vertex: 350
+	Newly Observed: 7
+	Total: 1277
+	Observed: 288
+	Dominating: 70
+Select Dominating Vertex: 1148
+	Newly Observed: 9
+	Total: 1277
+	Observed: 297
+	Dominating: 71
+Select Dominating Vertex: 1266
+	Newly Observed: 6
+	Total: 1277
+	Observed: 303
+	Dominating: 72
+Select Dominating Vertex: 323
+	Newly Observed: 5
+	Total: 1277
+	Observed: 308
+	Dominating: 73
+Select Dominating Vertex: 317
+	Newly Observed: 7
+	Total: 1277
+	Observed: 315
+	Dominating: 74
+Select Dominating Vertex: 285
+	Newly Observed: 6
+	Total: 1277
+	Observed: 321
+	Dominating: 75
+Select Dominating Vertex: 121
+	Newly Observed: 6
+	Total: 1277
+	Observed: 327
+	Dominating: 76
+Select Dominating Vertex: 230
+	Newly Observed: 6
+	Total: 1277
+	Observed: 333
+	Dominating: 77
+Select Dominating Vertex: 1124
+	Newly Observed: 5
+	Total: 1277
+	Observed: 338
+	Dominating: 78
+Select Dominating Vertex: 256
+	Newly Observed: 6
+	Total: 1277
+	Observed: 344
+	Dominating: 79
+Select Dominating Vertex: 881
+	Newly Observed: 6
+	Total: 1277
+	Observed: 350
+	Dominating: 80
+Select Dominating Vertex: 50
+	Newly Observed: 5
+	Total: 1277
+	Observed: 355
+	Dominating: 81
+Select Dominating Vertex: 445
+	Newly Observed: 6
+	Total: 1277
+	Observed: 361
+	Dominating: 82
+Select Dominating Vertex: 1024
+	Newly Observed: 5
+	Total: 1277
+	Observed: 366
+	Dominating: 83
+Select Dominating Vertex: 1014
+	Newly Observed: 6
+	Total: 1277
+	Observed: 372
+	Dominating: 84
+Select Dominating Vertex: 73
+	Newly Observed: 5
+	Total: 1277
+	Observed: 377
+	Dominating: 85
+Select Dominating Vertex: 995
+	Newly Observed: 6
+	Total: 1277
+	Observed: 383
+	Dominating: 86
+Select Dominating Vertex: 999
+	Newly Observed: 7
+	Total: 1277
+	Observed: 390
+	Dominating: 87
+Select Dominating Vertex: 1065
+	Newly Observed: 6
+	Total: 1277
+	Observed: 396
+	Dominating: 88
+Select Dominating Vertex: 949
+	Newly Observed: 8
+	Total: 1277
+	Observed: 404
+	Dominating: 89
+Select Dominating Vertex: 561
+	Newly Observed: 6
+	Total: 1277
+	Observed: 410
+	Dominating: 90
+Select Dominating Vertex: 21
+	Newly Observed: 5
+	Total: 1277
+	Observed: 415
+	Dominating: 91
+Select Dominating Vertex: 257
+	Newly Observed: 5
+	Total: 1277
+	Observed: 420
+	Dominating: 92
+Select Dominating Vertex: 560
+	Newly Observed: 5
+	Total: 1277
+	Observed: 425
+	Dominating: 93
+Select Dominating Vertex: 1049
+	Newly Observed: 5
+	Total: 1277
+	Observed: 430
+	Dominating: 94
+Select Dominating Vertex: 911
+	Newly Observed: 6
+	Total: 1277
+	Observed: 436
+	Dominating: 95
+Select Dominating Vertex: 391
+	Newly Observed: 5
+	Total: 1277
+	Observed: 441
+	Dominating: 96
+Select Dominating Vertex: 1144
+	Newly Observed: 5
+	Total: 1277
+	Observed: 446
+	Dominating: 97
+Select Dominating Vertex: 1199
+	Newly Observed: 6
+	Total: 1277
+	Observed: 452
+	Dominating: 98
+Select Dominating Vertex: 277
+	Newly Observed: 5
+	Total: 1277
+	Observed: 457
+	Dominating: 99
+Select Dominating Vertex: 242
+	Newly Observed: 6
+	Total: 1277
+	Observed: 463
+	Dominating: 100
+Select Dominating Vertex: 1105
+	Newly Observed: 5
+	Total: 1277
+	Observed: 468
+	Dominating: 101
+Select Dominating Vertex: 1231
+	Newly Observed: 5
+	Total: 1277
+	Observed: 473
+	Dominating: 102
+Select Dominating Vertex: 308
+	Newly Observed: 5
+	Total: 1277
+	Observed: 478
+	Dominating: 103
+Select Dominating Vertex: 333
+	Newly Observed: 5
+	Total: 1277
+	Observed: 483
+	Dominating: 104
+Select Dominating Vertex: 1073
+	Newly Observed: 5
+	Total: 1277
+	Observed: 488
+	Dominating: 105
+Select Dominating Vertex: 920
+	Newly Observed: 7
+	Total: 1277
+	Observed: 495
+	Dominating: 106
+Select Dominating Vertex: 983
+	Newly Observed: 7
+	Total: 1277
+	Observed: 502
+	Dominating: 107
+Select Dominating Vertex: 1011
+	Newly Observed: 6
+	Total: 1277
+	Observed: 508
+	Dominating: 108
+Select Dominating Vertex: 1233
+	Newly Observed: 5
+	Total: 1277
+	Observed: 513
+	Dominating: 109
+Select Dominating Vertex: 972
+	Newly Observed: 5
+	Total: 1277
+	Observed: 518
+	Dominating: 110
+Select Dominating Vertex: 1270
+	Newly Observed: 5
+	Total: 1277
+	Observed: 523
+	Dominating: 111
+Select Dominating Vertex: 359
+	Newly Observed: 5
+	Total: 1277
+	Observed: 528
+	Dominating: 112
+Select Dominating Vertex: 968
+	Newly Observed: 5
+	Total: 1277
+	Observed: 533
+	Dominating: 113
+Select Dominating Vertex: 123
+	Newly Observed: 5
+	Total: 1277
+	Observed: 538
+	Dominating: 114
+Select Dominating Vertex: 1139
+	Newly Observed: 6
+	Total: 1277
+	Observed: 544
+	Dominating: 115
+Select Dominating Vertex: 916
+	Newly Observed: 6
+	Total: 1277
+	Observed: 550
+	Dominating: 116
+Select Dominating Vertex: 683
+	Newly Observed: 5
+	Total: 1277
+	Observed: 555
+	Dominating: 117
+Select Dominating Vertex: 480
+	Newly Observed: 4
+	Total: 1277
+	Observed: 559
+	Dominating: 118
+Select Dominating Vertex: 236
+	Newly Observed: 4
+	Total: 1277
+	Observed: 563
+	Dominating: 119
+Select Dominating Vertex: 1200
+	Newly Observed: 5
+	Total: 1277
+	Observed: 568
+	Dominating: 120
+Select Dominating Vertex: 368
+	Newly Observed: 6
+	Total: 1277
+	Observed: 574
+	Dominating: 121
+Select Dominating Vertex: 876
+	Newly Observed: 4
+	Total: 1277
+	Observed: 578
+	Dominating: 122
+Select Dominating Vertex: 807
+	Newly Observed: 5
+	Total: 1277
+	Observed: 583
+	Dominating: 123
+Select Dominating Vertex: 354
+	Newly Observed: 4
+	Total: 1277
+	Observed: 587
+	Dominating: 124
+Select Dominating Vertex: 248
+	Newly Observed: 4
+	Total: 1277
+	Observed: 591
+	Dominating: 125
+Select Dominating Vertex: 130
+	Newly Observed: 4
+	Total: 1277
+	Observed: 595
+	Dominating: 126
+Select Dominating Vertex: 912
+	Newly Observed: 4
+	Total: 1277
+	Observed: 599
+	Dominating: 127
+Select Dominating Vertex: 473
+	Newly Observed: 4
+	Total: 1277
+	Observed: 603
+	Dominating: 128
+Select Dominating Vertex: 769
+	Newly Observed: 4
+	Total: 1277
+	Observed: 607
+	Dominating: 129
+Select Dominating Vertex: 892
+	Newly Observed: 4
+	Total: 1277
+	Observed: 611
+	Dominating: 130
+Select Dominating Vertex: 92
+	Newly Observed: 4
+	Total: 1277
+	Observed: 615
+	Dominating: 131
+Select Dominating Vertex: 609
+	Newly Observed: 9
+	Total: 1277
+	Observed: 624
+	Dominating: 132
+Select Dominating Vertex: 660
+	Newly Observed: 5
+	Total: 1277
+	Observed: 629
+	Dominating: 133
+Select Dominating Vertex: 596
+	Newly Observed: 5
+	Total: 1277
+	Observed: 634
+	Dominating: 134
+Select Dominating Vertex: 552
+	Newly Observed: 4
+	Total: 1277
+	Observed: 638
+	Dominating: 135
+Select Dominating Vertex: 783
+	Newly Observed: 6
+	Total: 1277
+	Observed: 644
+	Dominating: 136
+Select Dominating Vertex: 537
+	Newly Observed: 7
+	Total: 1277
+	Observed: 651
+	Dominating: 137
+Select Dominating Vertex: 676
+	Newly Observed: 4
+	Total: 1277
+	Observed: 655
+	Dominating: 138
+Select Dominating Vertex: 498
+	Newly Observed: 6
+	Total: 1277
+	Observed: 661
+	Dominating: 139
+Select Dominating Vertex: 946
+	Newly Observed: 4
+	Total: 1277
+	Observed: 665
+	Dominating: 140
+Select Dominating Vertex: 116
+	Newly Observed: 4
+	Total: 1277
+	Observed: 669
+	Dominating: 141
+Select Dominating Vertex: 982
+	Newly Observed: 4
+	Total: 1277
+	Observed: 673
+	Dominating: 142
+Select Dominating Vertex: 1043
+	Newly Observed: 4
+	Total: 1277
+	Observed: 677
+	Dominating: 143
+Select Dominating Vertex: 246
+	Newly Observed: 4
+	Total: 1277
+	Observed: 681
+	Dominating: 144
+Select Dominating Vertex: 316
+	Newly Observed: 4
+	Total: 1277
+	Observed: 685
+	Dominating: 145
+Select Dominating Vertex: 669
+	Newly Observed: 4
+	Total: 1277
+	Observed: 689
+	Dominating: 146
+Select Dominating Vertex: 36
+	Newly Observed: 4
+	Total: 1277
+	Observed: 693
+	Dominating: 147
+Select Dominating Vertex: 1147
+	Newly Observed: 4
+	Total: 1277
+	Observed: 697
+	Dominating: 148
+Select Dominating Vertex: 189
+	Newly Observed: 4
+	Total: 1277
+	Observed: 701
+	Dominating: 149
+Select Dominating Vertex: 800
+	Newly Observed: 4
+	Total: 1277
+	Observed: 705
+	Dominating: 150
+Select Dominating Vertex: 871
+	Newly Observed: 4
+	Total: 1277
+	Observed: 709
+	Dominating: 151
+Select Dominating Vertex: 569
+	Newly Observed: 5
+	Total: 1277
+	Observed: 714
+	Dominating: 152
+Select Dominating Vertex: 1235
+	Newly Observed: 4
+	Total: 1277
+	Observed: 718
+	Dominating: 153
+Select Dominating Vertex: 665
+	Newly Observed: 4
+	Total: 1277
+	Observed: 722
+	Dominating: 154
+Select Dominating Vertex: 1050
+	Newly Observed: 4
+	Total: 1277
+	Observed: 726
+	Dominating: 155
+Select Dominating Vertex: 423
+	Newly Observed: 4
+	Total: 1277
+	Observed: 730
+	Dominating: 156
+Select Dominating Vertex: 1254
+	Newly Observed: 4
+	Total: 1277
+	Observed: 734
+	Dominating: 157
+Select Dominating Vertex: 1242
+	Newly Observed: 6
+	Total: 1277
+	Observed: 740
+	Dominating: 158
+Select Dominating Vertex: 266
+	Newly Observed: 4
+	Total: 1277
+	Observed: 744
+	Dominating: 159
+Select Dominating Vertex: 1161
+	Newly Observed: 4
+	Total: 1277
+	Observed: 748
+	Dominating: 160
+Select Dominating Vertex: 817
+	Newly Observed: 4
+	Total: 1277
+	Observed: 752
+	Dominating: 161
+Select Dominating Vertex: 222
+	Newly Observed: 4
+	Total: 1277
+	Observed: 756
+	Dominating: 162
+Select Dominating Vertex: 909
+	Newly Observed: 4
+	Total: 1277
+	Observed: 760
+	Dominating: 163
+Select Dominating Vertex: 506
+	Newly Observed: 4
+	Total: 1277
+	Observed: 764
+	Dominating: 164
+Select Dominating Vertex: 862
+	Newly Observed: 4
+	Total: 1277
+	Observed: 768
+	Dominating: 165
+Select Dominating Vertex: 906
+	Newly Observed: 4
+	Total: 1277
+	Observed: 772
+	Dominating: 166
+Select Dominating Vertex: 252
+	Newly Observed: 5
+	Total: 1277
+	Observed: 777
+	Dominating: 167
+Select Dominating Vertex: 240
+	Newly Observed: 4
+	Total: 1277
+	Observed: 781
+	Dominating: 168
+Select Dominating Vertex: 854
+	Newly Observed: 4
+	Total: 1277
+	Observed: 785
+	Dominating: 169
+Select Dominating Vertex: 1193
+	Newly Observed: 4
+	Total: 1277
+	Observed: 789
+	Dominating: 170
+Select Dominating Vertex: 583
+	Newly Observed: 4
+	Total: 1277
+	Observed: 793
+	Dominating: 171
+Select Dominating Vertex: 1128
+	Newly Observed: 4
+	Total: 1277
+	Observed: 797
+	Dominating: 172
+Select Dominating Vertex: 938
+	Newly Observed: 4
+	Total: 1277
+	Observed: 801
+	Dominating: 173
+Select Dominating Vertex: 1000
+	Newly Observed: 4
+	Total: 1277
+	Observed: 805
+	Dominating: 174
+Select Dominating Vertex: 623
+	Newly Observed: 4
+	Total: 1277
+	Observed: 809
+	Dominating: 175
+Select Dominating Vertex: 327
+	Newly Observed: 4
+	Total: 1277
+	Observed: 813
+	Dominating: 176
+Select Dominating Vertex: 1208
+	Newly Observed: 4
+	Total: 1277
+	Observed: 817
+	Dominating: 177
+Select Dominating Vertex: 438
+	Newly Observed: 4
+	Total: 1277
+	Observed: 821
+	Dominating: 178
+Select Dominating Vertex: 918
+	Newly Observed: 4
+	Total: 1277
+	Observed: 825
+	Dominating: 179
+Select Dominating Vertex: 746
+	Newly Observed: 4
+	Total: 1277
+	Observed: 829
+	Dominating: 180
+Select Dominating Vertex: 494
+	Newly Observed: 3
+	Total: 1277
+	Observed: 832
+	Dominating: 181
+Select Dominating Vertex: 630
+	Newly Observed: 4
+	Total: 1277
+	Observed: 836
+	Dominating: 182
+Select Dominating Vertex: 1149
+	Newly Observed: 4
+	Total: 1277
+	Observed: 840
+	Dominating: 183
+Select Dominating Vertex: 5
+	Newly Observed: 3
+	Total: 1277
+	Observed: 843
+	Dominating: 184
+Select Dominating Vertex: 723
+	Newly Observed: 3
+	Total: 1277
+	Observed: 846
+	Dominating: 185
+Select Dominating Vertex: 564
+	Newly Observed: 3
+	Total: 1277
+	Observed: 849
+	Dominating: 186
+Select Dominating Vertex: 691
+	Newly Observed: 3
+	Total: 1277
+	Observed: 852
+	Dominating: 187
+Select Dominating Vertex: 818
+	Newly Observed: 3
+	Total: 1277
+	Observed: 855
+	Dominating: 188
+Select Dominating Vertex: 1130
+	Newly Observed: 3
+	Total: 1277
+	Observed: 858
+	Dominating: 189
+Select Dominating Vertex: 70
+	Newly Observed: 3
+	Total: 1277
+	Observed: 861
+	Dominating: 190
+Select Dominating Vertex: 766
+	Newly Observed: 3
+	Total: 1277
+	Observed: 864
+	Dominating: 191
+Select Dominating Vertex: 1067
+	Newly Observed: 3
+	Total: 1277
+	Observed: 867
+	Dominating: 192
+Select Dominating Vertex: 1170
+	Newly Observed: 3
+	Total: 1277
+	Observed: 870
+	Dominating: 193
+Select Dominating Vertex: 392
+	Newly Observed: 3
+	Total: 1277
+	Observed: 873
+	Dominating: 194
+Select Dominating Vertex: 48
+	Newly Observed: 3
+	Total: 1277
+	Observed: 876
+	Dominating: 195
+Select Dominating Vertex: 59
+	Newly Observed: 3
+	Total: 1277
+	Observed: 879
+	Dominating: 196
+Select Dominating Vertex: 851
+	Newly Observed: 3
+	Total: 1277
+	Observed: 882
+	Dominating: 197
+Select Dominating Vertex: 1214
+	Newly Observed: 3
+	Total: 1277
+	Observed: 885
+	Dominating: 198
+Select Dominating Vertex: 139
+	Newly Observed: 3
+	Total: 1277
+	Observed: 888
+	Dominating: 199
+Select Dominating Vertex: 496
+	Newly Observed: 3
+	Total: 1277
+	Observed: 891
+	Dominating: 200
+Select Dominating Vertex: 45
+	Newly Observed: 4
+	Total: 1277
+	Observed: 895
+	Dominating: 201
+Select Dominating Vertex: 1141
+	Newly Observed: 3
+	Total: 1277
+	Observed: 898
+	Dominating: 202
+Select Dominating Vertex: 940
+	Newly Observed: 3
+	Total: 1277
+	Observed: 901
+	Dominating: 203
+Select Dominating Vertex: 681
+	Newly Observed: 3
+	Total: 1277
+	Observed: 904
+	Dominating: 204
+Select Dominating Vertex: 598
+	Newly Observed: 3
+	Total: 1277
+	Observed: 907
+	Dominating: 205
+Select Dominating Vertex: 1042
+	Newly Observed: 3
+	Total: 1277
+	Observed: 910
+	Dominating: 206
+Select Dominating Vertex: 1269
+	Newly Observed: 3
+	Total: 1277
+	Observed: 913
+	Dominating: 207
+Select Dominating Vertex: 1099
+	Newly Observed: 3
+	Total: 1277
+	Observed: 916
+	Dominating: 208
+Select Dominating Vertex: 1220
+	Newly Observed: 3
+	Total: 1277
+	Observed: 919
+	Dominating: 209
+Select Dominating Vertex: 515
+	Newly Observed: 3
+	Total: 1277
+	Observed: 922
+	Dominating: 210
+Select Dominating Vertex: 149
+	Newly Observed: 3
+	Total: 1277
+	Observed: 925
+	Dominating: 211
+Select Dominating Vertex: 223
+	Newly Observed: 3
+	Total: 1277
+	Observed: 928
+	Dominating: 212
+Select Dominating Vertex: 557
+	Newly Observed: 3
+	Total: 1277
+	Observed: 931
+	Dominating: 213
+Select Dominating Vertex: 202
+	Newly Observed: 3
+	Total: 1277
+	Observed: 934
+	Dominating: 214
+Select Dominating Vertex: 638
+	Newly Observed: 3
+	Total: 1277
+	Observed: 937
+	Dominating: 215
+Select Dominating Vertex: 935
+	Newly Observed: 3
+	Total: 1277
+	Observed: 940
+	Dominating: 216
+Select Dominating Vertex: 742
+	Newly Observed: 3
+	Total: 1277
+	Observed: 943
+	Dominating: 217
+Select Dominating Vertex: 31
+	Newly Observed: 3
+	Total: 1277
+	Observed: 946
+	Dominating: 218
+Select Dominating Vertex: 294
+	Newly Observed: 3
+	Total: 1277
+	Observed: 949
+	Dominating: 219
+Select Dominating Vertex: 301
+	Newly Observed: 3
+	Total: 1277
+	Observed: 952
+	Dominating: 220
+Select Dominating Vertex: 864
+	Newly Observed: 3
+	Total: 1277
+	Observed: 955
+	Dominating: 221
+Select Dominating Vertex: 463
+	Newly Observed: 3
+	Total: 1277
+	Observed: 958
+	Dominating: 222
+Select Dominating Vertex: 292
+	Newly Observed: 3
+	Total: 1277
+	Observed: 961
+	Dominating: 223
+Select Dominating Vertex: 1201
+	Newly Observed: 3
+	Total: 1277
+	Observed: 964
+	Dominating: 224
+Select Dominating Vertex: 819
+	Newly Observed: 3
+	Total: 1277
+	Observed: 967
+	Dominating: 225
+Select Dominating Vertex: 607
+	Newly Observed: 3
+	Total: 1277
+	Observed: 970
+	Dominating: 226
+Select Dominating Vertex: 592
+	Newly Observed: 3
+	Total: 1277
+	Observed: 973
+	Dominating: 227
+Select Dominating Vertex: 1106
+	Newly Observed: 3
+	Total: 1277
+	Observed: 976
+	Dominating: 228
+Select Dominating Vertex: 1081
+	Newly Observed: 3
+	Total: 1277
+	Observed: 979
+	Dominating: 229
+Select Dominating Vertex: 1093
+	Newly Observed: 3
+	Total: 1277
+	Observed: 982
+	Dominating: 230
+Select Dominating Vertex: 701
+	Newly Observed: 3
+	Total: 1277
+	Observed: 985
+	Dominating: 231
+Select Dominating Vertex: 192
+	Newly Observed: 3
+	Total: 1277
+	Observed: 988
+	Dominating: 232
+Select Dominating Vertex: 362
+	Newly Observed: 3
+	Total: 1277
+	Observed: 991
+	Dominating: 233
+Select Dominating Vertex: 893
+	Newly Observed: 3
+	Total: 1277
+	Observed: 994
+	Dominating: 234
+Select Dominating Vertex: 342
+	Newly Observed: 3
+	Total: 1277
+	Observed: 997
+	Dominating: 235
+Select Dominating Vertex: 1160
+	Newly Observed: 3
+	Total: 1277
+	Observed: 1000
+	Dominating: 236
+Select Dominating Vertex: 655
+	Newly Observed: 3
+	Total: 1277
+	Observed: 1003
+	Dominating: 237
+Select Dominating Vertex: 698
+	Newly Observed: 3
+	Total: 1277
+	Observed: 1006
+	Dominating: 238
+Select Dominating Vertex: 261
+	Newly Observed: 3
+	Total: 1277
+	Observed: 1009
+	Dominating: 239
+Select Dominating Vertex: 1008
+	Newly Observed: 3
+	Total: 1277
+	Observed: 1012
+	Dominating: 240
+Select Dominating Vertex: 68
+	Newly Observed: 3
+	Total: 1277
+	Observed: 1015
+	Dominating: 241
+Select Dominating Vertex: 520
+	Newly Observed: 3
+	Total: 1277
+	Observed: 1018
+	Dominating: 242
+Select Dominating Vertex: 1192
+	Newly Observed: 3
+	Total: 1277
+	Observed: 1021
+	Dominating: 243
+Select Dominating Vertex: 453
+	Newly Observed: 3
+	Total: 1277
+	Observed: 1024
+	Dominating: 244
+Select Dominating Vertex: 573
 	Newly Observed: 2
-	Observed: 26
-	Total: 3497
-	Dominating: 7
-Select Dominating Vertex: 2692
-	Newly Observed: 1
-	Observed: 27
-	Total: 3497
-	Dominating: 8
-Select Dominating Vertex: 1229
-	Newly Observed: 1
-	Observed: 28
-	Total: 3497
-	Dominating: 9
+	Total: 1277
+	Observed: 1026
+	Dominating: 245
+Select Dominating Vertex: 568
+	Newly Observed: 4
+	Total: 1277
+	Observed: 1030
+	Dominating: 246
+Select Dominating Vertex: 1080
+	Newly Observed: 3
+	Total: 1277
+	Observed: 1033
+	Dominating: 247
+Select Dominating Vertex: 1076
+	Newly Observed: 2
+	Total: 1277
+	Observed: 1035
+	Dominating: 248
+Select Dominating Vertex: 770
+	Newly Observed: 2
+	Total: 1277
+	Observed: 1037
+	Dominating: 249
+Select Dominating Vertex: 251
+	Newly Observed: 2
+	Total: 1277
+	Observed: 1039
+	Dominating: 250
+Select Dominating Vertex: 1023
+	Newly Observed: 2
+	Total: 1277
+	Observed: 1041
+	Dominating: 251
+Select Dominating Vertex: 374
+	Newly Observed: 2
+	Total: 1277
+	Observed: 1043
+	Dominating: 252
+Select Dominating Vertex: 739
+	Newly Observed: 2
+	Total: 1277
+	Observed: 1045
+	Dominating: 253
+Select Dominating Vertex: 903
+	Newly Observed: 2
+	Total: 1277
+	Observed: 1047
+	Dominating: 254
+Select Dominating Vertex: 1103
+	Newly Observed: 2
+	Total: 1277
+	Observed: 1049
+	Dominating: 255
+Select Dominating Vertex: 762
+	Newly Observed: 2
+	Total: 1277
+	Observed: 1051
+	Dominating: 256
+Select Dominating Vertex: 858
+	Newly Observed: 2
+	Total: 1277
+	Observed: 1053
+	Dominating: 257
+Select Dominating Vertex: 231
+	Newly Observed: 2
+	Total: 1277
+	Observed: 1055
+	Dominating: 258
+Select Dominating Vertex: 791
+	Newly Observed: 2
+	Total: 1277
+	Observed: 1057
+	Dominating: 259
+Select Dominating Vertex: 1003
+	Newly Observed: 2
+	Total: 1277
+	Observed: 1059
+	Dominating: 260
+Select Dominating Vertex: 103
+	Newly Observed: 2
+	Total: 1277
+	Observed: 1061
+	Dominating: 261
+Select Dominating Vertex: 835
+	Newly Observed: 2
+	Total: 1277
+	Observed: 1063
+	Dominating: 262
+Select Dominating Vertex: 377
+	Newly Observed: 2
+	Total: 1277
+	Observed: 1065
+	Dominating: 263
+Select Dominating Vertex: 499
+	Newly Observed: 2
+	Total: 1277
+	Observed: 1067
+	Dominating: 264
+Select Dominating Vertex: 659
+	Newly Observed: 2
+	Total: 1277
+	Observed: 1069
+	Dominating: 265
+Select Dominating Vertex: 1159
+	Newly Observed: 2
+	Total: 1277
+	Observed: 1071
+	Dominating: 266
+Select Dominating Vertex: 175
+	Newly Observed: 2
+	Total: 1277
+	Observed: 1073
+	Dominating: 267
+Select Dominating Vertex: 584
+	Newly Observed: 2
+	Total: 1277
+	Observed: 1075
+	Dominating: 268
+Select Dominating Vertex: 898
+	Newly Observed: 2
+	Total: 1277
+	Observed: 1077
+	Dominating: 269
+Select Dominating Vertex: 531
+	Newly Observed: 2
+	Total: 1277
+	Observed: 1079
+	Dominating: 270
+Select Dominating Vertex: 907
+	Newly Observed: 2
+	Total: 1277
+	Observed: 1081
+	Dominating: 271
+Select Dominating Vertex: 1265
+	Newly Observed: 2
+	Total: 1277
+	Observed: 1083
+	Dominating: 272
+Select Dominating Vertex: 1209
+	Newly Observed: 2
+	Total: 1277
+	Observed: 1085
+	Dominating: 273
+Select Dominating Vertex: 120
+	Newly Observed: 2
+	Total: 1277
+	Observed: 1087
+	Dominating: 274
+Select Dominating Vertex: 415
+	Newly Observed: 2
+	Total: 1277
+	Observed: 1089
+	Dominating: 275
+Select Dominating Vertex: 902
+	Newly Observed: 2
+	Total: 1277
+	Observed: 1091
+	Dominating: 276
+Select Dominating Vertex: 944
+	Newly Observed: 2
+	Total: 1277
+	Observed: 1093
+	Dominating: 277
+Select Dominating Vertex: 79
+	Newly Observed: 2
+	Total: 1277
+	Observed: 1095
+	Dominating: 278
+Select Dominating Vertex: 558
+	Newly Observed: 2
+	Total: 1277
+	Observed: 1097
+	Dominating: 279
+Select Dominating Vertex: 664
+	Newly Observed: 2
+	Total: 1277
+	Observed: 1099
+	Dominating: 280

@@ -1,9 +1,9 @@
+#include <cassert>
 #include <fstream>
 #include <iostream>
 
 #include "basic.hpp"
-#include "graph.hpp"
-#include "pds.hpp"
+#include "nupds.hpp"
 
 int main( int argc, const char* argv[] ) {
     if ( argc <= 1 ) {
@@ -12,41 +12,19 @@ int main( int argc, const char* argv[] ) {
     std::ifstream fin( argv[1] );
 
     std::string t;
+    fin >> t;
 
-    Graph g;
-    u32 n, m;
-    fin >> n >> m;
-    for ( u32 i = 0; i < m; i++ ) {
-        u32 u, v;
-        fin >> u >> v;
-        g.add_edge( u, v );
-        g.add_edge( v, u );
+    NuPDS solver;
+
+    solver.init( fin );
+
+    auto newly_observed = solver.setDominating( 1285 );
+
+    if ( newly_observed.size() != 37 ) {
+        std::cout << "Failed test" << std::endl;
+        std::cout << "Newly Observed: " << newly_observed.size() << std::endl;
+    } else {
+        std::cout << "Passed test" << std::endl;
     }
-
-    NuPDS pds( g );
-
-    // pds.add_into_solution( 23 );
-    // for ( auto& v : pds.get_observed_vertex() ) {
-    //     std::cout << v << ' ';
-    // }
-    // std::cout << std::endl;
-
-    // pds.add_into_solution( 6 );
-    // for ( auto& v : pds.get_observed_vertex() ) {
-    //     std::cout << v << ' ';
-    // }
-    // std::cout << std::endl;
-
-    // pds.add_into_solution( 10 );
-    // for ( auto& v : pds.get_observed_vertex() ) {
-    //     std::cout << v << ' ';
-    // }
-    // std::cout << std::endl;
-
-    // pds.add_into_solution( 30 );
-    // for ( auto& v : pds.get_observed_vertex() ) {
-    //     std::cout << v << ' ';
-    // }
-    // std::cout << std::endl;
     return 0;
 }

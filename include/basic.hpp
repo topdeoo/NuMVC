@@ -9,8 +9,6 @@
 #include <cstdint>
 #include <functional>
 #include <random>
-#include <unordered_map>
-#include <unordered_set>
 
 typedef uint64_t u64;
 typedef uint32_t u32;
