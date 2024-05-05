@@ -47,9 +47,10 @@ private:
     DenpenceGraph dependencies_;
 
 private:
-    void propagate( std::vector<Vertex>& queue );
-    bool observe( Vertex vertex, Vertex origin );
-    bool observeOne( Vertex vertex, Vertex origin, std::vector<Vertex>& queue );
+    void propagate( std::vector<Vertex>& queue, mpgraphs::set<Vertex>& newlyObserved );
+    // bool observe( Vertex vertex, Vertex origin );
+    bool observeOne( Vertex vertex, Vertex origin, std::vector<Vertex>& queue,
+                     mpgraphs::set<Vertex>& newlyObserved );
     std::pair<NuPDS::Vertex, double> selectVertexToAdd( bool first = false );
     std::pair<NuPDS::Vertex, double> selectVertexToRemove();
     std::pair<NuPDS::Vertex, double> getBestObserver();
@@ -67,9 +68,10 @@ public:
     void addEdge( Vertex source, Vertex target );
     void removeVertex( Vertex v );
 
-    bool setDominating( Vertex vertex );
-    void updateAfterDominating( Vertex vertex, double score );
-    void getClouser( Vertex vertex, mpgraphs::set<Vertex>& clouser );
+    mpgraphs::set<Vertex> setDominating( Vertex vertex );
+    void updateAfterDominating( Vertex vertex, double score, mpgraphs::set<Vertex>& newlyObserved );
+    void getClouser( Vertex vertex, mpgraphs::set<Vertex>& clouser,
+                     mpgraphs::set<Vertex>& newlyObserved );
     bool removeDominating( Vertex vertex );
     void updateAfterRemoving( Vertex vertex );
 

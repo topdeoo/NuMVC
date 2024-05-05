@@ -3,6 +3,7 @@
 #include <cassert>
 #include <exception>
 #include <iostream>
+#include <iterator>
 #include <optional>
 #include <range/v3/range/conversion.hpp>
 #include <utility>
@@ -57,33 +58,36 @@ void NuPDS::removeVertex( Vertex v ) {
     unobserved_degree_.erase( v );
 }
 
-void NuPDS::propagate( std::vector<Vertex>& queue ) {
+void NuPDS::propagate( std::vector<Vertex>& queue, mpgraphs::set<Vertex>& newlyObserved ) {
     while ( !queue.empty() ) {
         auto v = queue.back();
         queue.pop_back();
         if ( isObserved( v ) && !isNonPropagating( v ) && unobserved_degree_[v] == 1 ) {
             for ( auto& w : graph_.neighbors( v ) ) {
                 if ( !isObserved( w ) ) {
-                    observeOne( w, v, queue );
+                    observeOne( w, v, queue, newlyObserved );
                 }
             }
         }
     }
 }
 
-bool NuPDS::observe( Vertex vertex, Vertex origin ) {
-    std::vector<Vertex> queue;
-    if ( observeOne( vertex, origin, queue ) ) {
-        propagate( queue );
-        return true;
-    } else {
-        return false;
-    }
-}
+// bool NuPDS::observe( Vertex vertex, Vertex origin ) {
+//     std::vector<Vertex> queue;
+//     if ( observeOne( vertex, origin, queue ) ) {
+//         propagate( queue );
+//         return true;
+//     } else {
+//         return false;
+//     }
+// }
 
-bool NuPDS::observeOne( Vertex vertex, Vertex origin, std::vector<Vertex>& queue ) {
+bool NuPDS::observeOne( Vertex vertex, Vertex origin, std::vector<Vertex>& queue,
+                        mpgraphs::set<Vertex>& newlyObserved ) {
     if ( !isObserved( vertex ) ) {
         dependencies_.getOrAddVertex( vertex );
+        newlyObserved.insert( vertex );
+        graph_[vertex].state = VertexState::Observed;
         if ( origin != vertex ) {
             dependencies_.addEdge( origin, vertex );
         }
@@ -102,7 +106,8 @@ bool NuPDS::observeOne( Vertex vertex, Vertex origin, std::vector<Vertex>& queue
     }
 }
 
-bool NuPDS::setDominating( Vertex vertex ) {
+mpgraphs::set<NuPDS::Vertex> NuPDS::setDominating( Vertex vertex ) {
+    mpgraphs::set<Vertex> newlyObserved;
     if ( !isDominating( vertex ) ) {
         graph_[vertex].state = VertexState::Domating;
         dominating_count_++;
@@ -113,16 +118,17 @@ bool NuPDS::setDominating( Vertex vertex ) {
             }
         }
         std::vector<Vertex> queue;
-        observeOne( vertex, vertex, queue );
+        observeOne( vertex, vertex, queue, newlyObserved );
         for ( auto w : graph_.neighbors( vertex ) ) {
-            observeOne( w, vertex, queue );
+            observeOne( w, vertex, queue, newlyObserved );
         }
-        propagate( queue );
+        propagate( queue, newlyObserved );
     }
-    return allObserved();
+    return newlyObserved;
 }
 
 bool NuPDS::removeDominating( Vertex vertex ) {
+    mpgraphs::set<Vertex> newlyObserved;
     if ( isDominating( vertex ) ) {
         std::vector<Vertex> queue;
         std::vector<Vertex> propagating;
@@ -159,17 +165,19 @@ bool NuPDS::removeDominating( Vertex vertex ) {
             }
             dependencies_.removeVertex( v );
             if ( observer.has_value() ) {
-                observeOne( v, observer.value(), propagating );
+                observeOne( v, observer.value(), propagating, newlyObserved );
             }
         }
-        propagate( propagating );
+        propagate( propagating, newlyObserved );
     }
     return isObserved( vertex );
 }
 
 std::pair<NuPDS::Vertex, double> NuPDS::selectVertexToAdd( bool first ) {
     if ( first ) {
-        return { *add_available_vertices_.begin(), 0 };
+        mpgraphs::set<Vertex>::const_iterator it = add_available_vertices_.begin();
+        std::advance( it, random_int( 0, add_available_vertices_.size() ) );
+        return { *it, 0 };
     }
     return getBestObserver();
 }
@@ -190,16 +198,14 @@ std::pair<NuPDS::Vertex, double> NuPDS::getBestObserver() {
     double maxn = 0;
     Vertex best = *add_available_vertices_.begin();
 
-    std::cout << "available vertices: " << add_available_vertices_.size() << std::endl;
-
     for ( auto v : add_available_vertices_ ) {
         auto prev_graph = graph_;
         auto prev_deps = dependencies_;
-        auto x = numObserved();
         auto prev_dominating_count = dominating_count_;
         auto prev_unobserved_degree = unobserved_degree_;
-        setDominating( v );
-        auto score = ( 1 + random_alpha() ) * ( numObserved() - x );
+
+        auto newlyObserved = setDominating( v );
+        auto score = ( 1 + random_alpha() ) * newlyObserved.size();
         if ( score > maxn ) {
             maxn = score;
             best = v;
@@ -214,26 +220,34 @@ std::pair<NuPDS::Vertex, double> NuPDS::getBestObserver() {
     return { best, maxn };
 }
 
-void NuPDS::getClouser( Vertex vertex, mpgraphs::set<Vertex>& clouser ) {
-    auto changed = dependencies_.neighbors( vertex );
-    changed.push_back( vertex );
-    clouser.insert( changed.begin(), changed.end() );
+void NuPDS::getClouser( Vertex vertex, mpgraphs::set<Vertex>& clouser,
+                        mpgraphs::set<Vertex>& newlyObserved ) {
+    for ( auto& v : newlyObserved ) {
+        clouser.insert( v );
+        for ( auto& w : graph_.neighbors( v ) ) {
+            if ( !clouser.contains( w ) ) {
+                clouser.insert( w );
+            }
+        }
+    }
 }
 
-void NuPDS::updateAfterDominating( Vertex vertex, double score ) {
-    add_available_vertices_.erase( vertex );
+void NuPDS::updateAfterDominating( Vertex vertex, double score, mpgraphs::set<Vertex>& newlyObserved ) {
     mpgraphs::set<Vertex> clouser;
-    getClouser( vertex, clouser );
+    getClouser( vertex, clouser, newlyObserved );
     for ( auto v : add_available_vertices_ ) {
-        if ( !isDominating( v ) && !isUpdate( v ) ) {
+        if ( !isUpdate( v ) && !isDominating( v ) ) {
+            // Judge whether `v` is effect by `clouser`(i.e. is there any neighbor of `v` in `clouser`)
             for ( auto& w : graph_.neighbors( v ) ) {
                 if ( clouser.contains( w ) ) {
-                    setUpdate( w );
+                    setUpdate( v );
                     break;
                 }
             }
         }
     }
+    add_available_vertices_.erase( vertex );
+    graph_[vertex].state = VertexState::Domating;
     remove_available_vertices_.insert( { vertex, score } );
 }
 
@@ -252,14 +266,20 @@ void NuPDS::GRASP() {
         if ( first ) {
             // Insure we do not choose vertex.state = InSured or Excluded
             auto [v, score] = selectVertexToAdd( first );
-            setDominating( v );
+            auto newlyObserved = setDominating( v );
             first = false;
-            updateAfterDominating( v, score );
+            score = ( 1 + random_alpha() ) * ( newlyObserved.size() );
+            updateAfterDominating( v, score, newlyObserved );
             continue;
         }
         auto [v, score] = selectVertexToAdd();
-        setDominating( v );
-        updateAfterDominating( v, score );
+        auto newlyObserved = setDominating( v );
+        updateAfterDominating( v, score, newlyObserved );
+        std::cout << "Select Dominating Vertex: " << v << std::endl;
+        std::cout << "\tNewly Observed: " << newlyObserved.size() << std::endl;
+        std::cout << "\tObserved: " << dependencies_.numVertices() << std::endl;
+        std::cout << "\tTotal: " << graph_.numVertices() << std::endl;
+        std::cout << "\tDominating: " << dominating_count_ << std::endl;
     }
 }
 
@@ -267,15 +287,20 @@ void NuPDS::localSearch() {}
 
 void NuPDS::search() {
     GRASP();
+    // NOTE For Debugging
+    return;
+
     auto best_solution =
-        graph_.vertices() |
-        ranges::views::filter( [this]( auto v ) { return graph_[v].state == VertexState::Domating; } ) |
+        graph_.vertices() | ranges::views::filter( [this]( auto v ) {
+            return graph_[v].state == VertexState::Domating || graph_[v].state == VertexState::InSured;
+        } ) |
         ranges::to<std::vector>();
     u32 timestramp = 0;
     while ( timestramp < cutoff_ ) {
         if ( allObserved() ) {
             best_solution = graph_.vertices() | ranges::views::filter( [this]( auto v ) {
-                                return graph_[v].state == VertexState::Domating;
+                                return graph_[v].state == VertexState::Domating ||
+                                       graph_[v].state == VertexState::InSured;
                             } ) |
                             ranges::to<std::vector>();
             // TODO random select a vertex to remove
@@ -284,11 +309,11 @@ void NuPDS::search() {
             removeDominating( v );
             continue;
         }
-        auto [v, _] = selectVertexToRemove();
-        removeDominating( v );
-        auto [u, score] = selectVertexToAdd();
-        setDominating( u );
-        updateAfterDominating( u, score );
+        // auto [v, _] = selectVertexToRemove();
+        // removeDominating( v );
+        // auto [u, score] = selectVertexToAdd();
+        // setDominating( u );
+        // updateAfterDominating( u, score );
         timestramp += 1;
     }
 }
@@ -297,9 +322,9 @@ void NuPDS::init( std::ifstream& fin ) {
     int n, m;
     fin >> n >> m;
     mpgraphs::map<u32, Graph::VertexDescriptor> vertices;
-    for ( int i = 0; i < n; i++ ) {
-        u32 v;
-        fin >> v;
+    for ( int v = 0; v < n; v++ ) {
+        // u32 v;
+        // fin >> v;
         vertices[v] = graph_.addVertex( Node{ .name = std::to_string( v ),
                                               .id = static_cast<u32>( v ),
                                               .non_propgating = false,
@@ -318,32 +343,32 @@ void NuPDS::init( std::ifstream& fin ) {
         graph_.addEdge( getVertex( u ), getVertex( v ) );
     }
 
-    int k;
-    fin >> k;
+    // int k;
+    // fin >> k;
 
-    for ( int i = 0; i < k; i++ ) {
-        u32 v;
-        fin >> v;
-        graph_.getVertex( getVertex( v ) ).state = VertexState::InSured;
-        setDominating( getVertex( v ) );
-    }
+    // for ( int i = 0; i < k; i++ ) {
+    //     u32 v;
+    //     fin >> v;
+    //     graph_.getVertex( getVertex( v ) ).state = VertexState::InSured;
+    //     setDominating( getVertex( v ) );
+    // }
 
-    fin >> k;
+    // fin >> k;
 
-    for ( int i = 0; i < k; i++ ) {
-        u32 v;
-        fin >> v;
-        graph_.getVertex( getVertex( v ) ).state = VertexState::Exclude;
-        add_available_vertices_.erase( getVertex( v ) );
-    }
+    // for ( int i = 0; i < k; i++ ) {
+    //     u32 v;
+    //     fin >> v;
+    //     graph_.getVertex( getVertex( v ) ).state = VertexState::Exclude;
+    //     add_available_vertices_.erase( getVertex( v ) );
+    // }
 
-    fin >> k;
+    // fin >> k;
 
-    for ( int i = 0; i < k; i++ ) {
-        u32 v;
-        fin >> v;
-        graph_.getVertex( getVertex( v ) ).non_propgating = true;
-    }
+    // for ( int i = 0; i < k; i++ ) {
+    //     u32 v;
+    //     fin >> v;
+    //     graph_.getVertex( getVertex( v ) ).non_propgating = true;
+    // }
 }
 
 std::vector<unsigned long> NuPDS::getSolution() {

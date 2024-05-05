@@ -1,0 +1,40 @@
+Select Dominating Vertex: 16
+	Newly Observed: 5
+	Observed: 6
+	Total: 3497
+	Dominating: 2
+Select Dominating Vertex: 26
+	Newly Observed: 6
+	Observed: 12
+	Total: 3497
+	Dominating: 3
+Select Dominating Vertex: 25
+	Newly Observed: 5
+	Observed: 17
+	Total: 3497
+	Dominating: 4
+Select Dominating Vertex: 393
+	Newly Observed: 4
+	Observed: 21
+	Total: 3497
+	Dominating: 5
+Select Dominating Vertex: 394
+	Newly Observed: 3
+	Observed: 24
+	Total: 3497
+	Dominating: 6
+Select Dominating Vertex: 2
+	Newly Observed: 2
+	Observed: 26
+	Total: 3497
+	Dominating: 7
+Select Dominating Vertex: 2692
+	Newly Observed: 1
+	Observed: 27
+	Total: 3497
+	Dominating: 8
+Select Dominating Vertex: 1229
+	Newly Observed: 1
+	Observed: 28
+	Total: 3497
+	Dominating: 9
