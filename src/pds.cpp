@@ -331,9 +331,15 @@ u32 NuPDS::select_remove_vertex( bool random ) {
 void NuPDS::greedy() {
     bool first = true;
     while ( !all_observed() ) {
+        auto x = dependencies_.vertex_nums();
         auto v = select_add_vertex( first );
         add_into_solution( v.first );
         update_candidate_after_add( v.first );
+        std::cout << "Select Dominating Vertex : " << v.first << std::endl;
+        std::cout << "\tNewly Observed: " << dependencies_.vertex_nums() - x << std::endl;
+        std::cout << "\tObserved: " << dependencies_.vertex_nums() << std::endl;
+        std::cout << "\tTotal: " << graph_.vertex_nums() << std::endl;
+        std::cout << "\tDominating Count: " << solution_.size() << std::endl;
         if ( first ) {
             first = false;
             remove_score_[v.first] =
