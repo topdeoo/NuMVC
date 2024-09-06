@@ -61,6 +61,7 @@ public:
     // main procedure
     void solve();
     void greedy();
+    void random_generate();
 
     // dominating
     void observe_one( u32 vertex, u32 origin, std::stack<u32> &stack_ );

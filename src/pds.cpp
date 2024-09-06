@@ -71,7 +71,7 @@ void NuPDS::init( std::ifstream &fin ) {
         tabu_[v] = 0;
     }
 
-    cutoff_ = 1000;
+    cutoff_ = 100;
 }
 
 void NuPDS::pre_process() {
@@ -322,6 +322,7 @@ void NuPDS::greedy() {
         auto v = select_add_vertex( first );
         add_into_solution( v.first );
         update_candidate_after_add( v.first );
+        tabu_[v.first] = 0;
         if ( first ) {
             first = false;
             remove_score_[v.first] =
@@ -329,6 +330,16 @@ void NuPDS::greedy() {
         } else {
             remove_score_[v.first] = v.second;
         }
+    }
+}
+
+void NuPDS::random_generate() {
+    while ( !all_observed() ) {
+        auto v = select_add_vertex( true );
+        add_into_solution( v.first );
+        update_candidate_after_add( v.first );
+        tabu_[v.first] = 0;
+        remove_score_[v.first] = ( dependencies_.vertex_nums() - v.second ) * ( 1 + random_alpha() );
     }
 }
 
@@ -357,66 +368,41 @@ void NuPDS::redundant_removal() {
 }
 
 void NuPDS::solve() {
-    if ( !all_observed() ) {
-        greedy();
-    }
-
-    if ( solution_.size() == 1 ) {
-        best_solution_ = solution_;
-        return;
-    }
-
-    // for ( auto &[k, v] : unobserved_degree_ ) {
-    //     v = 0;
-    // }
-
-    tabu_.clear();
-
-    redundant_removal();
-
     timestamp_ = 0;
-    u32 not_improve = 0;
-    // u32 prev_add = 0;
-
-    // step2: local search
     while ( timestamp_ < cutoff_ ) {
-        if ( all_observed() ) {
-            // should random select a vertex to remove
-            // std::cout << "remove random vertex" << std::endl;
-            // redundant_removal();
-            best_solution_ = solution_;
-            auto v = select_remove_vertex( true );
-            // std::cout << "\tremove vertex: " << v << std::endl;
-            remove_from_solution( v );
-            timestamp_++;
-            continue;
+        if ( !all_observed() ) {
+            random_generate();
         }
-        // std::cout << "local search" << std::endl;
-        auto v = select_remove_vertex( false );
-        non_observed_.clear();
-        // if ( v == prev_add ) {
-        //     std::cout << "\033[31mloop\033[0m" << std::endl;
-        //     std::cout << tabu_[v] << " " << tabu_[prev_add] << std::endl;
-        // }
-        // std::cout << "\tremove vertex: " << v << std::endl;
-        remove_from_solution( v );
-        update_candidate_after_remove( v );
-        auto u = select_add_vertex( false );
-        // prev_add = u.first;
-        // std::cout << "\tadd vertex: " << u.first << std::endl;
-        add_into_solution( u.first );
-        update_candidate_after_add( u.first );
-        remove_score_[u.first] = u.second;
+        if ( solution_.size() == 1 ) {
+            best_solution_ = solution_;
+            return;
+        }
 
-        timestamp_++;
-        if ( solution_.size() >= best_solution_.size() ) {
+        redundant_removal();
+        u32 not_improve = 0;
+
+        // step2: local search
+        while ( not_improve < 10 ) {
+            if ( all_observed() ) {
+                best_solution_ = solution_;
+                auto v = select_remove_vertex( true );
+                remove_from_solution( v );
+                not_improve = 0;
+                continue;
+            }
+            auto v = select_remove_vertex( false );
+            non_observed_.clear();
+            remove_from_solution( v );
+            update_candidate_after_remove( v );
+            auto u = select_add_vertex( false );
+            add_into_solution( u.first );
+            update_candidate_after_add( u.first );
+            remove_score_[u.first] = u.second;
             not_improve++;
         }
-        if ( not_improve == 100 ) {
-            // todo give some random
-            // std::cout << "not improve" << std::endl;
-            not_improve = 0;
-        }
+        timestamp_++;
+        update_pre_selected();
+        pre_process();
     }
 }
 
@@ -428,12 +414,12 @@ const set<u32> &NuPDS::get_observed_vertex() const { return dependencies_.vertic
 
 void NuPDS::update_pre_selected() {
     dependencies_ = Graph();
-    best_solution_.clear();
     solution_.clear();
     for ( auto &v : graph_.vertices() ) {
         unobserved_degree_[v] = graph_.degree( v );
         age[v] = 0;
         cc_[v] = true;
         tabu_[v] = 0;
+        available_candidates_.insert( v );
     }
 }
