@@ -14,6 +14,8 @@ int main( int argc, const char *argv[] ) {
 
     std::string t;
 
+    fin >> t;
+
     Graph g;
     u32 n, m;
     fin >> n >> m;
@@ -43,13 +45,9 @@ int main( int argc, const char *argv[] ) {
         std::cout << "OK" << std::endl;
     } else {
         std::cout << "WA" << std::endl;
-        for ( auto &v : pds.get_solution() ) {
-            std::cout << v << ' ';
-        }
-        std::cout << std::endl;
         auto observed = pds.get_observed_vertex();
-        for ( auto &v : observed ) {
-            std::cout << v << ' ';
+        for ( auto &v : pds.vertices() ) {
+            if ( !observed.contains( v ) ) std::cout << v << ' ';
         }
     }
 

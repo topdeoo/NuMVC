@@ -37,7 +37,7 @@ public:
 private:
     Graph graph_;
     Graph dependencies_;
-    map<u32, u32> compress_;
+
     set<u32> solution_;
     map<u32, u32> unobserved_degree_;
     set<u32> non_observed_;
@@ -49,6 +49,11 @@ private:
     set<u32> best_solution_;
     u32 timestamp_;
     u32 cutoff_;
+
+    Graph pre_process_dependencies_;
+    map<u32, u32> pre_process_unobserved_degree_;
+    set<u32> pre_process_available_candidates_;
+
     set<u32> pre_selected_;  // already in solution
     map<u32, VertexState> vertices_state_;
     set<u32> available_candidates_;
@@ -78,14 +83,17 @@ public:
     std::pair<u32, double> select_add_vertex( bool first = false );
     u32 select_remove_vertex( bool random = false );
 
+    std::pair<u32, double> select_add_vertex_by_degree();
+
     // update solution
     void add_into_solution( u32 v );
     void remove_from_solution( u32 v );
     void redundant_removal();
 
-    void update_pre_selected();
+    void reset();
 
     // hlep func
+    const set<u32> &vertices() const { return graph_.vertices(); }
     bool all_observed();
     bool is_in_solution( u32 v );
     bool not_exculded( u32 v );

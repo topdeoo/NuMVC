@@ -1,6 +1,7 @@
 #include "pds.hpp"
 
 #include <iostream>
+#include <iterator>
 #include <optional>
 #include <stack>
 #include <utility>
@@ -13,8 +14,6 @@ void NuPDS::init( std::ifstream &fin ) {
     u32 n, m;
     fin >> n >> m;
 
-    u32 count = 0;
-
     for ( u32 i = 0; i < m; i++ ) {
         u32 from, to;
         fin >> from >> to;
@@ -26,9 +25,6 @@ void NuPDS::init( std::ifstream &fin ) {
         available_candidates_.insert( to );
         non_observed_.insert( from );
         non_observed_.insert( to );
-
-        compress_[count++] = from;
-        compress_[count++] = to;
     }
 
     u32 k;
@@ -78,6 +74,9 @@ void NuPDS::pre_process() {
     for ( auto &v : pre_selected_ ) {
         add_into_solution( v );
     }
+    pre_process_dependencies_ = dependencies_;
+    pre_process_unobserved_degree_ = unobserved_degree_;
+    pre_process_available_candidates_ = available_candidates_;
 }
 
 void NuPDS::observe_one( u32 vertex, u32 origin, std::stack<u32> &stack_ ) {
@@ -252,7 +251,7 @@ void NuPDS::update_candidate_after_remove( u32 vertex ) {
 
 std::pair<u32, double> NuPDS::select_add_vertex( bool first ) {
     if ( first ) {
-        auto v = compress_[random_int( 0, compress_.size() - 1 )];
+        auto v = *available_candidates_.begin();
         return { v, dependencies_.vertex_nums() };
     }
 
@@ -284,17 +283,31 @@ std::pair<u32, double> NuPDS::select_add_vertex( bool first ) {
             tabu_[v]--;
         }
     }
-    if ( maxn == -1 ) {
-        return { compress_[random_int( 0, compress_.size() - 1 )], -1 };
+    return { ret, maxn };
+}
+
+std::pair<u32, double> NuPDS::select_add_vertex_by_degree() {
+    double maxn = -1;
+    u32 ret = *available_candidates_.begin();
+    for ( auto &v : available_candidates_ ) {
+        if ( !is_tabu( v ) ) {
+            double vscore = graph_.degree( v ) * ( 1 + random_alpha() );
+            if ( vscore > maxn ) {
+                maxn = vscore;
+                ret = v;
+            }
+        } else {
+            tabu_[v]--;
+        }
     }
     return { ret, maxn };
 }
 
 u32 NuPDS::select_remove_vertex( bool random ) {
     if ( random ) {
-        auto n = compress_.size();
-        auto idx = random_int( 0, n - 1 );
-        return compress_[idx];
+        auto random_it =
+            std::next( std::begin( remove_score_ ), random_int( 0, remove_score_.size() - 1 ) );
+        return random_it->first;
     }
 
     double minn = 0x3f3f3f3f * 1.0;
@@ -309,9 +322,6 @@ u32 NuPDS::select_remove_vertex( bool random ) {
         } else {
             tabu_[v]--;
         }
-    }
-    if ( minn == 0x3f3f3f3f * 1.0 ) {
-        return compress_[random_int( 0, compress_.size() - 1 )];
     }
     return ret;
 }
@@ -335,11 +345,11 @@ void NuPDS::greedy() {
 
 void NuPDS::random_generate() {
     while ( !all_observed() ) {
-        auto v = select_add_vertex( true );
+        auto v = select_add_vertex_by_degree();
         add_into_solution( v.first );
         update_candidate_after_add( v.first );
         tabu_[v.first] = 0;
-        remove_score_[v.first] = ( dependencies_.vertex_nums() - v.second ) * ( 1 + random_alpha() );
+        remove_score_[v.first] = v.second;
     }
 }
 
@@ -373,20 +383,26 @@ void NuPDS::solve() {
         if ( !all_observed() ) {
             random_generate();
         }
+
+        redundant_removal();
+
         if ( solution_.size() == 1 ) {
             best_solution_ = solution_;
             return;
         }
 
-        redundant_removal();
         u32 not_improve = 0;
 
         // step2: local search
         while ( not_improve < 10 ) {
             if ( all_observed() ) {
                 best_solution_ = solution_;
+                if ( best_solution_.size() == 1 ) {
+                    return;
+                }
                 auto v = select_remove_vertex( true );
                 remove_from_solution( v );
+                update_candidate_after_remove( v );
                 not_improve = 0;
                 continue;
             }
@@ -401,8 +417,7 @@ void NuPDS::solve() {
             not_improve++;
         }
         timestamp_++;
-        update_pre_selected();
-        pre_process();
+        reset();
     }
 }
 
@@ -412,14 +427,15 @@ const set<u32> &NuPDS::get_best_solution() const { return best_solution_; }
 
 const set<u32> &NuPDS::get_observed_vertex() const { return dependencies_.vertices(); }
 
-void NuPDS::update_pre_selected() {
-    dependencies_ = Graph();
+void NuPDS::reset() {
+    dependencies_ = pre_process_dependencies_;
     solution_.clear();
+    vertices_state_.clear();
     for ( auto &v : graph_.vertices() ) {
-        unobserved_degree_[v] = graph_.degree( v );
         age[v] = 0;
         cc_[v] = true;
         tabu_[v] = 0;
-        available_candidates_.insert( v );
     }
+    unobserved_degree_ = pre_process_unobserved_degree_;
+    available_candidates_ = pre_process_available_candidates_;
 }
